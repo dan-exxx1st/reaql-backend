@@ -1,0 +1,19 @@
+{
+    "name": "reaql-backend",
+    "version": "0.0.1",
+    "description": "nest.js graphql microservices redis",
+    "main": "index.js",
+    "author": "dan-exxx1st",
+    "license": "MIT",
+    "private": true,
+    "scripts": {
+        "bootstrap": "lerna bootstrap",
+        "start:dev": "lerna run start:dev --parallel",
+        "docker:build": "docker-compose build --force-rm",
+        "docker:up": "docker-compose up",
+        "docker:up:build": "docker-compose up --force-recreate"
+    },
+    "devDependencies": {
+        "lerna": "^3.22.1"
+    }
+}

@@ -1,0 +1,68 @@
+version: '3'
+services:
+    api:
+        container_name: api
+        volumes:
+            - ./packages/api:/usr/app
+        build:
+            context: ./packages/api/
+        restart: always
+        environment:
+            - APP_PORT=8080
+            - DB_HOST=postgres
+        ports:
+            - '8080:8080'
+        depends_on:
+            - redis
+            - postgres
+        links:
+            - postgres
+    book-microservice:
+        container_name: user-microservice
+        volumes:
+            - ./packages/user-service:/usr/app
+        restart: always
+        build:
+            context: ./packages/user-service/
+        environment:
+            - REDIS_HOST=redis
+        ports:
+            - '8081:3000'
+        depends_on:
+            - redis
+            - postgres
+        links:
+            - postgres
+    redis:
+        image: 'redis:latest'
+        container_name: microservice-redis
+        restart: always
+        environment:
+            - ALLOW_EMPTY_PASSWORD=yes
+            - 'REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL'
+        labels:
+            kompose.service.type: nodeport
+        command:
+            - redis-server
+            - '--bind'
+            - redis
+            - '--port'
+            - '6379'
+        volumes:
+            - 'redis_data:/usr/local/etc/redis/redis.conf'
+        ports:
+            - '6379:6379'
+    postgres:
+        image: postgres:13.0-alpine
+        volumes:
+            - ./postgres-data:/var/lib/postgresql/data
+        ports:
+            - '5434:5432'
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=123
+            - POSTGRES_DB=reaql-dev
+        container_name: postgres_dev
+volumes:
+    redis_data:
+        driver: local
