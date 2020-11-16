@@ -1,13 +1,23 @@
-type Todo {
-	id: ID!
-	text: String!
-	done: Boolean!
+type User {
+    id: ID!
+    email: String!
+    name: String!
+    surname: String!
+    avatar: String!
 }
 
 type Query {
-	todos: [Todo!]!
+    user(email: String!): User!
+    users: [User!]!
 }
 
 type Mutation {
-	createTodo(text: String!): Todo!
+    createUser(input: CreateUserInput!): User!
+}
+
+input CreateUserInput {
+    email: String!
+    name: String!
+    surname: String!
+    password: String!
 }

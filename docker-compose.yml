@@ -1,15 +1,16 @@
 version: '3'
 services:
-    api:
-        container_name: api
+    packages:
+        container_name: packages
         volumes:
-            - ./packages/api:/usr/app
+            - ./:/usr/app
         build:
-            context: ./packages/api/
+            context: ./
         restart: always
         environment:
             - APP_PORT=8080
             - DB_HOST=postgres
+            - REDIS_HOST=redis
         ports:
             - '8080:8080'
         depends_on:
@@ -17,22 +18,7 @@ services:
             - postgres
         links:
             - postgres
-    book-microservice:
-        container_name: user-microservice
-        volumes:
-            - ./packages/user-service:/usr/app
-        restart: always
-        build:
-            context: ./packages/user-service/
-        environment:
-            - REDIS_HOST=redis
-        ports:
-            - '8081:3000'
-        depends_on:
             - redis
-            - postgres
-        links:
-            - postgres
     redis:
         image: 'redis:latest'
         container_name: microservice-redis
