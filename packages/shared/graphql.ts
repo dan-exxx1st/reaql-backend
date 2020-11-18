@@ -6,19 +6,40 @@
 
 /* tslint:disable */
 /* eslint-disable */
-export class CreateUserInput {
+export class SignUpInput {
     email: string;
     name: string;
     surname: string;
     password: string;
 }
 
-export class User {
+export interface BaseEntity {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export class User implements BaseEntity {
     id: string;
     email: string;
     name: string;
     surname: string;
     avatar: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export class Session implements BaseEntity {
+    id: string;
+    accessToken: string;
+    refreshToken: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export class NewUser {
+    user: User;
+    session: Session;
 }
 
 export abstract class IQuery {
@@ -28,5 +49,5 @@ export abstract class IQuery {
 }
 
 export abstract class IMutation {
-    abstract createUser(input: CreateUserInput): User | Promise<User>;
+    abstract signUp(input: SignUpInput): NewUser | Promise<NewUser>;
 }

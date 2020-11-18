@@ -1,23 +1,44 @@
-type User {
-    id: ID!
-    email: String!
-    name: String!
-    surname: String!
-    avatar: String!
+interface BaseEntity {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type User implements BaseEntity {
+  id: ID!
+  email: String!
+  name: String!
+  surname: String!
+  avatar: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Session implements BaseEntity {
+  id: ID!
+  accessToken: String!
+  refreshToken: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type NewUser {
+  user: User!
+  session: Session!
+}
+
+input SignUpInput {
+  email: String!
+  name: String!
+  surname: String!
+  password: String!
 }
 
 type Query {
-    user(email: String!): User!
-    users: [User!]!
+  user(email: String!): User!
+  users: [User!]!
 }
 
 type Mutation {
-    createUser(input: CreateUserInput!): User!
-}
-
-input CreateUserInput {
-    email: String!
-    name: String!
-    surname: String!
-    password: String!
+  signUp(input: SignUpInput!): NewUser!
 }

@@ -1,22 +1,20 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column } from 'typeorm';
+import { BaseEntity } from './base.entity';
 
 @Entity()
-export class User {
-    @PrimaryColumn()
-    id: string;
+export class User extends BaseEntity {
+  @Column()
+  email: string;
 
-    @Column()
-    email: string;
+  @Column()
+  name: string;
 
-    @Column()
-    name: string;
+  @Column()
+  surname: string;
 
-    @Column()
-    surname: string;
+  @Column()
+  password: string;
 
-    @Column()
-    password: string;
-
-    @Column()
-    avatar: string;
+  @Column()
+  avatar: string;
 }
