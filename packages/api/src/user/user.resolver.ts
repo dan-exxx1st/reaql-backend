@@ -1,7 +1,8 @@
 import { Inject } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ClientProxy } from '@nestjs/microservices';
-import { NewUser, SignUpInput } from 'shared/graphql';
+import { UserAndSession, SignUpInput, SignInInput } from 'shared/graphql';
+import { signInType } from 'shared/services/types/auth';
 
 @Resolver()
 export class UserResolver {
@@ -22,10 +23,22 @@ export class UserResolver {
       const pattern = { type: 'sign-up' };
 
       const createdUser = await this.authService
-        .send<NewUser>(pattern, SignUpInput)
+        .send<UserAndSession>(pattern, SignUpInput)
         .toPromise();
 
       return createdUser;
+    } catch (error) {
+      return new Error(error.message);
+    }
+  }
+
+  @Mutation()
+  async signIn(@Args('input') signInInput: SignInInput) {
+    try {
+      const signInUser = await this.authService
+        .send<UserAndSession>(signInType, signInInput)
+        .toPromise();
+      return signInUser;
     } catch (error) {
       return new Error(error.message);
     }

@@ -1,10 +1,4 @@
-interface BaseEntity {
-  id: ID!
-  createdAt: String!
-  updatedAt: String!
-}
-
-type User implements BaseEntity {
+type User {
   id: ID!
   email: String!
   name: String!
@@ -14,7 +8,7 @@ type User implements BaseEntity {
   updatedAt: String!
 }
 
-type Session implements BaseEntity {
+type Session {
   id: ID!
   accessToken: String!
   refreshToken: String!
@@ -22,9 +16,14 @@ type Session implements BaseEntity {
   updatedAt: String!
 }
 
-type NewUser {
+type UserAndSession {
   user: User!
   session: Session!
+}
+
+type Query {
+  user(email: String!): User!
+  users: [User!]!
 }
 
 input SignUpInput {
@@ -34,11 +33,12 @@ input SignUpInput {
   password: String!
 }
 
-type Query {
-  user(email: String!): User!
-  users: [User!]!
+input SignInInput {
+  email: String!
+  password: String!
 }
 
 type Mutation {
-  signUp(input: SignUpInput!): NewUser!
+  signUp(input: SignUpInput!): UserAndSession!
+  signIn(input: SignInInput!): UserAndSession!
 }

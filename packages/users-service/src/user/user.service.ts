@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { v4 } from 'uuid';
-import { hash } from 'bcryptjs';
+import { hash, compare, genSaltSync } from 'bcryptjs';
 
 import { Repository } from 'typeorm';
 
@@ -33,7 +33,8 @@ export class UserService {
     const isUser = await this.find({ email: user.email });
     if (!isUser) {
       const id = v4();
-      const password = await hash(user.password, 10);
+      const salt = genSaltSync(10);
+      const password = await hash(user.password, salt);
       const newUser: User = {
         ...user,
         id,
@@ -47,5 +48,14 @@ export class UserService {
     }
 
     throw new RpcException('User already exists.');
+  }
+
+  async verifyUser({ email, password }: { email: string; password: string }) {
+    try {
+      const user = await this.find({ email });
+      return compare(password, user.password) ? true : false;
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
   }
 }

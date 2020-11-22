@@ -13,13 +13,12 @@ export class SignUpInput {
     password: string;
 }
 
-export interface BaseEntity {
-    id: string;
-    createdAt: string;
-    updatedAt: string;
+export class SignInInput {
+    email: string;
+    password: string;
 }
 
-export class User implements BaseEntity {
+export class User {
     id: string;
     email: string;
     name: string;
@@ -29,7 +28,7 @@ export class User implements BaseEntity {
     updatedAt: string;
 }
 
-export class Session implements BaseEntity {
+export class Session {
     id: string;
     accessToken: string;
     refreshToken: string;
@@ -37,7 +36,7 @@ export class Session implements BaseEntity {
     updatedAt: string;
 }
 
-export class NewUser {
+export class UserAndSession {
     user: User;
     session: Session;
 }
@@ -49,5 +48,7 @@ export abstract class IQuery {
 }
 
 export abstract class IMutation {
-    abstract signUp(input: SignUpInput): NewUser | Promise<NewUser>;
+    abstract signUp(input: SignUpInput): UserAndSession | Promise<UserAndSession>;
+
+    abstract signIn(input: SignInInput): UserAndSession | Promise<UserAndSession>;
 }

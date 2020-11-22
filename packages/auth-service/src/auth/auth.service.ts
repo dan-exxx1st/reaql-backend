@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Session, User } from 'shared/models';
+import { Session } from 'shared/models';
 import { Repository } from 'typeorm';
 
 import { v4 } from 'uuid';
@@ -45,5 +45,17 @@ export class AuthService {
     );
 
     return token;
+  }
+
+  async deleteRefreshToken(token: string) {
+    try {
+      const refreshTokenForDelete = await this.sessionRepository.find({
+        token,
+      });
+      await this.sessionRepository.remove(refreshTokenForDelete);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }
