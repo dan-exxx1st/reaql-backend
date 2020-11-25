@@ -6,6 +6,7 @@ import { User } from './user.entity';
 @Entity()
 export class Session extends BaseEntity {
   @ManyToOne(() => User, (user) => user.id)
+  @Column()
   user: string;
 
   @Column()

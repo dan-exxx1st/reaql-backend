@@ -15,6 +15,10 @@ export class AuthService {
     private sessionRepository: Repository<Session>,
   ) {}
 
+  async find(token: string) {
+    return this.sessionRepository.findOne({ token });
+  }
+
   async createRefreshToken(userId: string) {
     const id = v4();
     const refreshToken = v4();
@@ -30,19 +34,18 @@ export class AuthService {
       updatedAt: new Date(),
     };
 
-    await this.sessionRepository.save(newRefreshToken);
+    const { createdAt, updatedAt } = await this.sessionRepository.save(newRefreshToken);
 
     return {
       id,
       refreshToken,
+      createdAt,
+      updatedAt,
     };
   }
 
   createAccessToken(userId: string, email: string) {
-    const token = sign(
-      { id: userId, email, exp: Math.floor(Date.now() / 1000) + 60 * 60 },
-      config.jwtSecret,
-    );
+    const token = sign({ id: userId, email, exp: Math.floor(Date.now() / 1000) + 60 * 60 }, config.jwtSecret);
 
     return token;
   }

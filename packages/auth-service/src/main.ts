@@ -15,14 +15,9 @@ const microserviceOptions = {
 };
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice(
-    AppModule,
-    microserviceOptions,
-  );
+  const app = await NestFactory.createMicroservice(AppModule, microserviceOptions);
   app.listen(() => {
-    logger.log(
-      `Auth microservice is listening op port ${microserviceOptions.port}!`,
-    );
+    logger.log(`Auth microservice is listening op port ${microserviceOptions.port}!`);
   });
 }
 bootstrap();

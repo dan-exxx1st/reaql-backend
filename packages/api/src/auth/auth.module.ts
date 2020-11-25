@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-
-import { UserResolver } from './user.resolver';
+import { AuthResolver } from './auth.resolver';
 
 @Module({
   imports: [
     ClientsModule.register([
       {
-        name: 'USER_SERVICE',
+        name: 'AUTH_SERVICE',
         transport: Transport.REDIS,
         options: {
           url: `redis://${process.env.REDIS_HOST || 'localhost'}:6379`,
@@ -15,6 +14,6 @@ import { UserResolver } from './user.resolver';
       },
     ]),
   ],
-  providers: [UserResolver],
+  providers: [AuthResolver],
 })
-export class UserModule {}
+export class AuthModule {}

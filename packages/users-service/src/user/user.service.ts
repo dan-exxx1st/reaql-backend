@@ -30,24 +30,28 @@ export class UserService {
   }
 
   async create(user): Promise<User | Error> {
-    const isUser = await this.find({ email: user.email });
-    if (!isUser) {
-      const id = v4();
-      const salt = genSaltSync(10);
-      const password = await hash(user.password, salt);
-      const newUser: User = {
-        ...user,
-        id,
-        password,
-        avatar: '',
-        createdAt: formatISO(Date.now()),
-        updatedAt: formatISO(Date.now()),
-      };
-      this.userRepository.save(newUser);
-      return newUser;
-    }
+    try {
+      const isUser = await this.find({ email: user.email });
+      if (!isUser) {
+        const id = v4();
+        const salt = genSaltSync(10);
+        const password = await hash(user.password, salt);
+        const newUser: User = {
+          ...user,
+          id,
+          password,
+          avatar: '',
+          createdAt: formatISO(Date.now()),
+          updatedAt: formatISO(Date.now()),
+        };
+        this.userRepository.save(newUser);
+        return newUser;
+      }
 
-    throw new RpcException('User already exists.');
+      throw new RpcException('User already exists.');
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
   }
 
   async verifyUser({ email, password }: { email: string; password: string }) {

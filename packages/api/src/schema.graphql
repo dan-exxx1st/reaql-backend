@@ -41,4 +41,5 @@ input SignInInput {
 type Mutation {
   signUp(input: SignUpInput!): UserAndSession!
   signIn(input: SignInInput!): UserAndSession!
+  refreshSession(refreshToken: String!): Session!
 }

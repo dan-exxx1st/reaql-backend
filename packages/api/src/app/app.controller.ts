@@ -4,6 +4,13 @@ import { Controller, Get, Res } from '@nestjs/common';
 export class AppController {
   @Get()
   index(@Res() res) {
-    res.status(302).redirect('/graphql');
+    res.status(404).redirect('/graphql');
+  }
+
+  @Get('/health-check')
+  healthCheck() {
+    return {
+      message: 'All good. App is ready to accept connections.',
+    };
   }
 }

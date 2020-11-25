@@ -1,14 +1,11 @@
 import { Controller, Inject } from '@nestjs/common';
-import {
-  ClientProxy,
-  MessagePattern,
-  RpcException,
-} from '@nestjs/microservices';
+import { ClientProxy, MessagePattern, RpcException } from '@nestjs/microservices';
+
 import { User } from 'shared/models';
 import { SignInInput, SignUpInput } from 'shared/graphql';
 
-import { createUserType, verifyUserType } from 'shared/services/types/user';
-import { signInType, signUpType } from 'shared/services/types/auth';
+import { CREATE_USER_TYPE, FIND_USER_TYPE, VERIFY_USER_TYPE } from 'shared/services/types/user';
+import { REFRESH_SESSION_TYPE, SIGN_IN_TYPE, SIGN_UP_TYPE } from 'shared/services/types/auth';
 
 import { AuthService } from './auth.service';
 @Controller('auth')
@@ -18,20 +15,12 @@ export class AuthController {
     @Inject('USER_SERVICE') private readonly userService: ClientProxy,
   ) {}
 
-  @MessagePattern(signUpType)
+  @MessagePattern(SIGN_UP_TYPE)
   public async signUp(input: SignUpInput) {
     try {
-      const createdUser = await this.userService
-        .send<User>(createUserType, input)
-        .toPromise();
-      const accessToken = await this.authService.createAccessToken(
-        createdUser.id,
-        createdUser.email,
-      );
-      const {
-        id: sessionId,
-        refreshToken,
-      } = await this.authService.createRefreshToken(createdUser.id);
+      const createdUser = await this.userService.send<User>(CREATE_USER_TYPE, input).toPromise();
+      const accessToken = await this.authService.createAccessToken(createdUser.id, createdUser.email);
+      const { id: sessionId, refreshToken } = await this.authService.createRefreshToken(createdUser.id);
 
       return {
         user: createdUser,
@@ -46,38 +35,69 @@ export class AuthController {
     }
   }
 
-  @MessagePattern(signInType)
+  @MessagePattern(SIGN_IN_TYPE)
   public async signIn(input: SignInInput) {
     try {
       const verifyPayload = { email: input.email, password: input.password };
-      const verifyPassword = this.userService.send<boolean>(
-        verifyUserType,
-        verifyPayload,
-      );
-      if (verifyPassword) {
-        const user = await this.userService
-          .send<User>({ type: 'get-user' }, { email: input.email })
-          .toPromise();
+      const userCheckResult = await this.userService
+        .send<User>(FIND_USER_TYPE, { email: input.email })
+        .toPromise();
+      if (userCheckResult) {
+        const verifyPassword = this.userService.send<boolean>(VERIFY_USER_TYPE, verifyPayload);
+        if (verifyPassword) {
+          const user = await this.userService
+            .send<User>(FIND_USER_TYPE, { email: input.email })
+            .toPromise();
 
-        const accessToken = await this.authService.createAccessToken(
-          user.id,
-          user.email,
-        );
-        const {
-          id: sessionId,
-          refreshToken,
-        } = await this.authService.createRefreshToken(user.id);
+          const accessToken = await this.authService.createAccessToken(user.id, user.email);
+          const { id: sessionId, refreshToken } = await this.authService.createRefreshToken(user.id);
 
-        return {
-          user: user,
-          session: {
-            id: sessionId,
-            accessToken,
-            refreshToken,
-          },
-        };
+          return {
+            user: user,
+            session: {
+              id: sessionId,
+              accessToken,
+              refreshToken,
+            },
+          };
+        } else {
+          throw new RpcException('Password is not valid');
+        }
       } else {
-        throw new RpcException('Password is not valid');
+        throw new RpcException('Email is not valid');
+      }
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
+  }
+
+  @MessagePattern(REFRESH_SESSION_TYPE)
+  async refreshTokens(payload: { refreshToken: string }) {
+    try {
+      const { refreshToken } = payload;
+      const oldRefreshToken = await this.authService.find(refreshToken);
+      if (oldRefreshToken) {
+        if (oldRefreshToken.expiresIn > Number(Date.now() / 1000)) {
+          const userPayload = { id: oldRefreshToken.user };
+          const user = await this.userService.send<User>(FIND_USER_TYPE, userPayload).toPromise();
+          await this.authService.deleteRefreshToken(refreshToken);
+          const { id, refreshToken: newRefreshToken, createdAt, updatedAt } = await this.authService.createRefreshToken(
+            user.id,
+          );
+          const newAccessToken = await this.authService.createAccessToken(user.id, user.email);
+
+          return {
+            id: id,
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken,
+            createdAt,
+            updatedAt,
+          };
+        }
+
+        throw new RpcException('Refresh token is not valid.');
+      } else {
+        throw new RpcException('Refresh token was not found.');
       }
     } catch (error) {
       throw new RpcException(error.message);
