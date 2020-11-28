@@ -1,5 +1,5 @@
 import { ConnectionOptions } from 'typeorm';
-import { User, Session } from './models';
+import { User, Session, Dialog, DialogProps, Message } from './models';
 
 const config: ConnectionOptions = {
   type: 'postgres',
@@ -8,7 +8,7 @@ const config: ConnectionOptions = {
   username: 'postgres',
   password: '123',
   database: 'reaql-dev',
-  entities: [User, Session],
+  entities: [User, Session, Dialog, DialogProps, Message],
   synchronize: true,
   migrationsRun: false,
   logging: true,

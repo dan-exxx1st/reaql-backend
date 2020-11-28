@@ -2,7 +2,7 @@ import { Inject } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { ClientProxy } from '@nestjs/microservices';
 import { UserAndSession, SignInInput, SignUpInput } from 'shared/graphql';
-import { SIGN_UP_TYPE, SIGN_IN_TYPE, REFRESH_SESSION_TYPE } from 'shared/services/types/auth';
+import { SIGN_UP_TYPE, SIGN_IN_TYPE, REFRESH_SESSION_TYPE } from 'shared/types/auth';
 
 @Resolver()
 export class AuthResolver {

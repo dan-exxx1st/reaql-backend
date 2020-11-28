@@ -16,6 +16,22 @@ type Session {
   updatedAt: String!
 }
 
+type Dialog {
+  id: ID!
+  users: [User]!
+  dialogProps: [DialogProps]!
+  lastMessage: String!
+  lastMessageDate: String!
+}
+
+type DialogProps {
+  id: ID!
+  user: User!
+  userRole: String!
+  unreadMessages: Int!
+  lastMessageStatus: MESSAGE_STATUSES!
+}
+
 type UserAndSession {
   user: User!
   session: Session!
@@ -23,8 +39,10 @@ type UserAndSession {
 
 type Query {
   user(email: String!): User!
-  users: [User!]!
+  dialogs(userId: String!): [Dialog]!
 }
+
+# Mutations and inputs
 
 input SignUpInput {
   email: String!
@@ -38,8 +56,25 @@ input SignInInput {
   password: String!
 }
 
+input CreateDialogInput {
+  userId: String!
+  role: DIALOG_USER_ROLES!
+}
+
 type Mutation {
   signUp(input: SignUpInput!): UserAndSession!
   signIn(input: SignInInput!): UserAndSession!
   refreshSession(refreshToken: String!): Session!
+  createDialog(input: [CreateDialogInput]!): Dialog!
+}
+
+enum DIALOG_USER_ROLES {
+  ADMIN
+  USER
+}
+
+enum MESSAGE_STATUSES {
+  SENDED
+  RECIVED
+  READED
 }

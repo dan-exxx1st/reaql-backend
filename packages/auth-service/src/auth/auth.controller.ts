@@ -4,8 +4,8 @@ import { ClientProxy, MessagePattern, RpcException } from '@nestjs/microservices
 import { User } from 'shared/models';
 import { SignInInput, SignUpInput } from 'shared/graphql';
 
-import { CREATE_USER_TYPE, FIND_USER_TYPE, VERIFY_USER_TYPE } from 'shared/services/types/user';
-import { REFRESH_SESSION_TYPE, SIGN_IN_TYPE, SIGN_UP_TYPE } from 'shared/services/types/auth';
+import { CREATE_USER_TYPE, FIND_USER_TYPE, VERIFY_USER_TYPE } from 'shared/types/user';
+import { REFRESH_SESSION_TYPE, SIGN_IN_TYPE, SIGN_UP_TYPE } from 'shared/types/auth';
 
 import { AuthService } from './auth.service';
 @Controller('auth')
@@ -20,7 +20,7 @@ export class AuthController {
     try {
       const createdUser = await this.userService.send<User>(CREATE_USER_TYPE, input).toPromise();
       const accessToken = await this.authService.createAccessToken(createdUser.id, createdUser.email);
-      const { id: sessionId, refreshToken } = await this.authService.createRefreshToken(createdUser.id);
+      const { id: sessionId, refreshToken } = await this.authService.createRefreshToken(createdUser);
 
       return {
         user: createdUser,
@@ -50,7 +50,7 @@ export class AuthController {
             .toPromise();
 
           const accessToken = await this.authService.createAccessToken(user.id, user.email);
-          const { id: sessionId, refreshToken } = await this.authService.createRefreshToken(user.id);
+          const { id: sessionId, refreshToken } = await this.authService.createRefreshToken(user);
 
           return {
             user: user,
@@ -78,14 +78,14 @@ export class AuthController {
       const oldRefreshToken = await this.authService.find(refreshToken);
       if (oldRefreshToken) {
         if (oldRefreshToken.expiresIn > Number(Date.now() / 1000)) {
-          const userPayload = { id: oldRefreshToken.user };
+          const userPayload = { id: oldRefreshToken.user.id };
           const user = await this.userService.send<User>(FIND_USER_TYPE, userPayload).toPromise();
-          await this.authService.deleteRefreshToken(refreshToken);
           const { id, refreshToken: newRefreshToken, createdAt, updatedAt } = await this.authService.createRefreshToken(
-            user.id,
+            user,
           );
           const newAccessToken = await this.authService.createAccessToken(user.id, user.email);
 
+          await this.authService.deleteRefreshToken(refreshToken);
           return {
             id: id,
             accessToken: newAccessToken,

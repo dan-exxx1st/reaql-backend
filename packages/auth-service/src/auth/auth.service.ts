@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Session } from 'shared/models';
+import { Session, User } from 'shared/models';
 import { Repository } from 'typeorm';
 
 import { v4 } from 'uuid';
@@ -16,10 +16,10 @@ export class AuthService {
   ) {}
 
   async find(token: string) {
-    return this.sessionRepository.findOne({ token });
+    return this.sessionRepository.findOne({ relations: ['user'], where: { token } });
   }
 
-  async createRefreshToken(userId: string) {
+  async createRefreshToken(user: User) {
     const id = v4();
     const refreshToken = v4();
 
@@ -28,7 +28,7 @@ export class AuthService {
     const newRefreshToken: Session = {
       id,
       token: refreshToken,
-      user: userId,
+      user,
       expiresIn,
       createdAt: new Date(),
       updatedAt: new Date(),

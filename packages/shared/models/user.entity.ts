@@ -1,5 +1,5 @@
-import { Entity, Column } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import { Entity, Column, OneToMany } from 'typeorm';
+import { BaseEntity, DialogProps, Message, Session } from '.';
 
 @Entity()
 export class User extends BaseEntity {
@@ -17,4 +17,13 @@ export class User extends BaseEntity {
 
   @Column()
   avatar: string;
+
+  @OneToMany(() => Session, (session) => session.user)
+  sessions: Session[];
+
+  @OneToMany(() => DialogProps, (dialogProps) => dialogProps.user)
+  dialogsProps: DialogProps[];
+
+  @OneToMany(() => Message, (message) => message.user)
+  messages: Message[];
 }

@@ -6,7 +6,7 @@ import { Transport } from '@nestjs/microservices';
 const logger = new Logger('Main');
 
 const microserviceOptions = {
-  name: 'CONTACTS_SERVICES',
+  name: 'DIALOGS_SERVICES',
   transport: Transport.REDIS,
   options: {
     url: `redis://${process.env.REDIS_HOST || 'localhost'}:6379`,
@@ -17,7 +17,7 @@ const microserviceOptions = {
 async function bootstrap() {
   const app = await NestFactory.createMicroservice(AppModule, microserviceOptions);
   app.listen(() => {
-    logger.log(`Contacts microservice is listening op port ${microserviceOptions.port}!`);
+    logger.log(`Dialogs microservice is listening on port ${microserviceOptions.port}!`);
   });
 }
 bootstrap();

@@ -4,6 +4,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { AppController } from './app.controller';
 import { UserModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
+import { DialogModule } from '../dialog/dialog.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AuthModule } from '../auth/auth.module';
     }),
     UserModule,
     AuthModule,
+    DialogModule,
   ],
   controllers: [AppController],
   providers: [],
