@@ -39,7 +39,7 @@ export class User {
     email: string;
     name: string;
     surname: string;
-    avatar: string;
+    avatar?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -55,17 +55,17 @@ export class Session {
 export class Dialog {
     id: string;
     users: User[];
-    dialogProps: DialogProps;
-    lastMessage: string;
-    lastMessageDate: string;
+    dialogProps: DialogProps[];
+    lastMessage?: string;
+    lastMessageDate?: string;
 }
 
 export class DialogProps {
     id: string;
     user: User;
-    userRole: string;
-    unreadMessages: number;
-    lastMessageStatus: MESSAGE_STATUSES;
+    userRole: DIALOG_USER_ROLES;
+    unreadMessages?: number;
+    lastMessageStatus?: MESSAGE_STATUSES;
 }
 
 export class UserAndSession {
@@ -87,4 +87,8 @@ export abstract class IMutation {
     abstract refreshSession(refreshToken: string): Session | Promise<Session>;
 
     abstract createDialog(input: CreateDialogInput[]): Dialog | Promise<Dialog>;
+}
+
+export abstract class ISubscription {
+    abstract dialogCreated(userId: string): Dialog | Promise<Dialog>;
 }

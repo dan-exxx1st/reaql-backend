@@ -44,7 +44,7 @@ export class UserService {
           createdAt: formatISO(Date.now()),
           updatedAt: formatISO(Date.now()),
         };
-        this.userRepository.save(newUser);
+        await this.userRepository.save(newUser);
         return newUser;
       }
 

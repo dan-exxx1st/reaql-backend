@@ -14,7 +14,7 @@ export class UserResolver {
       const user = await this.userService.send(FIND_USER_TYPE, { email }).toPromise();
       return user;
     } catch (error) {
-      return new Error(error);
+      return new Error(error.message);
     }
   }
 }

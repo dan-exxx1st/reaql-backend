@@ -39,21 +39,17 @@ export class AuthController {
   public async signIn(input: SignInInput) {
     try {
       const verifyPayload = { email: input.email, password: input.password };
-      const userCheckResult = await this.userService
+      const user = await this.userService
         .send<User>(FIND_USER_TYPE, { email: input.email })
         .toPromise();
-      if (userCheckResult) {
+      if (user) {
         const verifyPassword = this.userService.send<boolean>(VERIFY_USER_TYPE, verifyPayload);
         if (verifyPassword) {
-          const user = await this.userService
-            .send<User>(FIND_USER_TYPE, { email: input.email })
-            .toPromise();
-
           const accessToken = await this.authService.createAccessToken(user.id, user.email);
           const { id: sessionId, refreshToken } = await this.authService.createRefreshToken(user);
 
           return {
-            user: user,
+            user,
             session: {
               id: sessionId,
               accessToken,

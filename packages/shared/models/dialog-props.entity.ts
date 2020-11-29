@@ -5,7 +5,7 @@ import { BaseEntity, Dialog, User } from '.';
 
 @Entity()
 export class DialogProps extends BaseEntity {
-  @ManyToOne(() => User, (user) => user.dialogsProps)
+  @ManyToOne(() => User, (user) => user.dialogProps)
   user: User;
 
   @ManyToOne(() => Dialog, (dialog) => dialog.dialogProps)

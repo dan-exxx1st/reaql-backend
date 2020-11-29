@@ -41,8 +41,7 @@ export class UserController {
   @MessagePattern(CREATE_USER_TYPE)
   public async createUser(data: SignUpInput): Promise<User | Error> {
     try {
-      const result = await this.userService.create(data);
-      return result;
+      return this.userService.create(data);
     } catch (error) {
       throw new RpcException(error.message);
     }

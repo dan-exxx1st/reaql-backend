@@ -3,7 +3,7 @@ type User {
   email: String!
   name: String!
   surname: String!
-  avatar: String!
+  avatar: String
   createdAt: String!
   updatedAt: String!
 }
@@ -20,16 +20,16 @@ type Dialog {
   id: ID!
   users: [User]!
   dialogProps: [DialogProps]!
-  lastMessage: String!
-  lastMessageDate: String!
+  lastMessage: String
+  lastMessageDate: String
 }
 
 type DialogProps {
   id: ID!
   user: User!
-  userRole: String!
-  unreadMessages: Int!
-  lastMessageStatus: MESSAGE_STATUSES!
+  userRole: DIALOG_USER_ROLES!
+  unreadMessages: Int
+  lastMessageStatus: MESSAGE_STATUSES
 }
 
 type UserAndSession {
@@ -42,7 +42,7 @@ type Query {
   dialogs(userId: String!): [Dialog]!
 }
 
-# Mutations and inputs
+# Mutations and inputs for mutations
 
 input SignUpInput {
   email: String!
@@ -65,9 +65,16 @@ type Mutation {
   signUp(input: SignUpInput!): UserAndSession!
   signIn(input: SignInInput!): UserAndSession!
   refreshSession(refreshToken: String!): Session!
-  createDialog(input: [CreateDialogInput]!): Dialog!
+  createDialog(input: [CreateDialogInput]!): Dialog
 }
 
+#Subscriptions and inputs for subscriptions
+
+type Subscription {
+  dialogCreated(userId: String!): Dialog!
+}
+
+# Other ...
 enum DIALOG_USER_ROLES {
   ADMIN
   USER
