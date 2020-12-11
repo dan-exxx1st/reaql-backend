@@ -27,6 +27,7 @@ export class SignUpInput {
 export class SignInInput {
     email: string;
     password: string;
+    rememberUser: boolean;
 }
 
 export class CreateDialogInput {
@@ -70,11 +71,13 @@ export class DialogProps {
 
 export class UserAndSession {
     user: User;
-    session: Session;
+    session?: Session;
 }
 
 export abstract class IQuery {
     abstract user(email: string): User | Promise<User>;
+
+    abstract findUsers(email: string): User[] | Promise<User[]>;
 
     abstract dialogs(userId: string): Dialog[] | Promise<Dialog[]>;
 }

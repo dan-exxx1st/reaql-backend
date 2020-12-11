@@ -20,6 +20,13 @@ export class UserService {
     return await this.userRepository.find({ id: In(userIds) });
   }
 
+  async findUsersByEmail(email: string): Promise<User[]> {
+    return await this.userRepository
+      .createQueryBuilder()
+      .where('email like :email', { email: `%${email}%` })
+      .getMany();
+  }
+
   async find({ id, email }: { id?: string; email?: string }) {
     if (id) {
       return this.userRepository.findOne({ id });

@@ -16,5 +16,3 @@ COPY . .
 RUN npm run bootstrap
 
 EXPOSE 8080
-
-CMD [ "npm","run", "dev" ]

@@ -3,7 +3,7 @@ type User {
   email: String!
   name: String!
   surname: String!
-  avatar: String
+  avatar: String!
   createdAt: String!
   updatedAt: String!
 }
@@ -34,11 +34,12 @@ type DialogProps {
 
 type UserAndSession {
   user: User!
-  session: Session!
+  session: Session
 }
 
 type Query {
   user(email: String!): User!
+  findUsersByEmail(email: String!): [User!]!
   dialogs(userId: String!): [Dialog]!
 }
 
@@ -54,6 +55,7 @@ input SignUpInput {
 input SignInInput {
   email: String!
   password: String!
+  rememberUser: Boolean!
 }
 
 input CreateDialogInput {
@@ -84,4 +86,11 @@ enum MESSAGE_STATUSES {
   SENDED
   RECIVED
   READED
+}
+
+#Schema type
+
+schema {
+  query: Query
+  mutation: Mutation
 }

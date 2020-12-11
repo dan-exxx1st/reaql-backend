@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
@@ -22,6 +22,9 @@ export class DialogsService {
     const users = await this.userService
       .send<User[]>(FIND_ALL_USERS_TYPE, { ids: userIds })
       .toPromise();
+    if (!users || users.length < userIds.length) {
+      throw new RpcException('Users not found');
+    }
 
     const newDialog: Dialog = {
       id: dialogId,

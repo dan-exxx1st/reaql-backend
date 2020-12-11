@@ -1,9 +1,16 @@
 import { Controller } from '@nestjs/common';
+
 import { MessagePattern, RpcException } from '@nestjs/microservices';
 import { SignUpInput } from 'shared/graphql';
 
 import { User } from 'shared/models';
-import { FIND_ALL_USERS_TYPE, FIND_USER_TYPE, CREATE_USER_TYPE, VERIFY_USER_TYPE } from 'shared/types/user';
+import {
+  FIND_ALL_USERS_TYPE,
+  FIND_USER_TYPE,
+  CREATE_USER_TYPE,
+  VERIFY_USER_TYPE,
+  FIND_USERS_BY_EMAIL,
+} from 'shared/types/user';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -36,6 +43,14 @@ export class UserController {
     } catch (error) {
       throw new RpcException(error.message);
     }
+  }
+
+  @MessagePattern(FIND_USERS_BY_EMAIL)
+  public async findUsersByEmail(email: string): Promise<User[] | Error> {
+    const users = await this.userService.findUsersByEmail(email);
+    if (users) return users;
+
+    throw new RpcException('Users not found.');
   }
 
   @MessagePattern(CREATE_USER_TYPE)

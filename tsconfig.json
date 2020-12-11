@@ -12,5 +12,5 @@
     "baseUrl": "packages",
     "incremental": true
   },
-  "include":["./packages"]
+  "include":["./packages", "./ava.config.js", "./.eslintrc.js"]
 }

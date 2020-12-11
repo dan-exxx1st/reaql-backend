@@ -38,24 +38,29 @@ export class AuthController {
   @MessagePattern(SIGN_IN_TYPE)
   public async signIn(input: SignInInput) {
     try {
-      const verifyPayload = { email: input.email, password: input.password };
+      const { email, password, rememberUser } = input;
+      const verifyPayload = { email, password };
       const user = await this.userService
-        .send<User>(FIND_USER_TYPE, { email: input.email })
+        .send<User>(FIND_USER_TYPE, { email })
         .toPromise();
       if (user) {
         const verifyPassword = this.userService.send<boolean>(VERIFY_USER_TYPE, verifyPayload);
         if (verifyPassword) {
-          const accessToken = await this.authService.createAccessToken(user.id, user.email);
-          const { id: sessionId, refreshToken } = await this.authService.createRefreshToken(user);
+          if (rememberUser) {
+            const accessToken = await this.authService.createAccessToken(user.id, user.email);
+            const { id: sessionId, refreshToken } = await this.authService.createRefreshToken(user);
 
-          return {
-            user,
-            session: {
-              id: sessionId,
-              accessToken,
-              refreshToken,
-            },
-          };
+            return {
+              user,
+              session: {
+                id: sessionId,
+                accessToken,
+                refreshToken,
+              },
+            };
+          } else {
+            return { user };
+          }
         } else {
           throw new RpcException('Password is not valid');
         }

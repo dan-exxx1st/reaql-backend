@@ -2,7 +2,7 @@ import { Inject } from '@nestjs/common';
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { ClientProxy } from '@nestjs/microservices';
 import { User } from 'shared/graphql';
-import { FIND_USER_TYPE } from 'shared/types/user';
+import { FIND_USERS_BY_EMAIL, FIND_USER_TYPE } from 'shared/types/user';
 
 @Resolver()
 export class UserResolver {
@@ -13,6 +13,17 @@ export class UserResolver {
     try {
       const user = await this.userService.send(FIND_USER_TYPE, { email }).toPromise();
       return user;
+    } catch (error) {
+      return new Error(error.message);
+    }
+  }
+
+  @Query()
+  async findUsersByEmail(@Args('email') email: string): Promise<User[] | Error> {
+    try {
+      if (email.length < 2) return [];
+      const users = await this.userService.send<User[]>(FIND_USERS_BY_EMAIL, email).toPromise();
+      return users;
     } catch (error) {
       return new Error(error.message);
     }

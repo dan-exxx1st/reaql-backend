@@ -14,6 +14,9 @@ export class DialogsController {
   async createDialog(payload: { userIdsWithRole: CreateDialogInput[] }) {
     try {
       const { userIdsWithRole } = payload;
+      if (userIdsWithRole.length < 2) {
+        throw new RpcException('Short array with user ids');
+      }
       const newDialogWithUsersAndProps = await this.dialogService.create(userIdsWithRole);
       return newDialogWithUsersAndProps;
     } catch (error) {
