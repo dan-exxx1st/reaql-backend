@@ -39,7 +39,7 @@ type UserAndSession {
 
 type Query {
   user(email: String!): User!
-  findUsersByEmail(email: String!): [User!]!
+  searchUsers(email: String!, selfEmail: String!): [User]!
   dialogs(userId: String!): [Dialog]!
 }
 

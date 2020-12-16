@@ -1,17 +1,27 @@
 import { Inject } from '@nestjs/common';
-import { Args, Mutation, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { ClientProxy } from '@nestjs/microservices';
 import { PubSub } from 'graphql-subscriptions';
 
 import { CreateDialogInput } from 'shared/graphql';
 import { Dialog } from 'shared/models';
-import { CREATE_DIALOG_TYPE } from 'shared/types/dialog';
+import { CREATE_DIALOG_TYPE, FIND_DIALOGS_TYPE } from 'shared/types/dialog';
 
 @Resolver()
 export class DialogResolver {
   pubSub: PubSub;
   constructor(@Inject('DIALOGS_SERVICE') private readonly dialogService: ClientProxy) {
     this.pubSub = new PubSub();
+  }
+
+  @Query()
+  async dialogs(@Args('userId') userId: string) {
+    try {
+      const dialogs = await this.dialogService.send(FIND_DIALOGS_TYPE, { userId }).toPromise();
+      return dialogs;
+    } catch (error) {
+      return new Error(error.message);
+    }
   }
 
   @Mutation()

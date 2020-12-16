@@ -46,8 +46,9 @@ export class UserController {
   }
 
   @MessagePattern(FIND_USERS_BY_EMAIL)
-  public async findUsersByEmail(email: string): Promise<User[] | Error> {
-    const users = await this.userService.findUsersByEmail(email);
+  public async findUsersByEmail(payload: { email: string; selfEmail: string }): Promise<User[] | Error> {
+    const { email, selfEmail } = payload;
+    const users = await this.userService.findUsersByEmail(email, selfEmail);
     if (users) return users;
 
     throw new RpcException('Users not found.');

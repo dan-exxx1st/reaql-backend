@@ -19,10 +19,12 @@ export class UserResolver {
   }
 
   @Query()
-  async findUsersByEmail(@Args('email') email: string): Promise<User[] | Error> {
+  async searchUsers(@Args('email') email: string, @Args('selfEmail') selfEmail: string): Promise<User[] | Error> {
     try {
       if (email.length < 2) return [];
-      const users = await this.userService.send<User[]>(FIND_USERS_BY_EMAIL, email).toPromise();
+      const users = await this.userService
+        .send<User[]>(FIND_USERS_BY_EMAIL, { email, selfEmail })
+        .toPromise();
       return users;
     } catch (error) {
       return new Error(error.message);

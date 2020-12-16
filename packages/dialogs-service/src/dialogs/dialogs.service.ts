@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { v4 } from 'uuid';
 
 import { CreateDialogInput, DIALOG_USER_ROLES } from 'shared/graphql';
 import { Dialog, DialogProps, User } from 'shared/models';
-import { FIND_ALL_USERS_TYPE } from 'shared/types/user';
+import { FIND_ALL_USERS_TYPE, FIND_USER_TYPE } from 'shared/types/user';
 
 @Injectable()
 export class DialogsService {
@@ -16,14 +16,40 @@ export class DialogsService {
     @Inject('USER_SERVICE') private readonly userService: ClientProxy,
   ) {}
 
-  async create(userIdsWithRoles: CreateDialogInput[]): Promise<Dialog> {
+  async findAll(userId: string) {
+    const user = await this.userService.send(FIND_USER_TYPE, { id: userId }).toPromise();
+    if (!user) {
+      return new Error('Users was not found');
+    }
+
+    const allDialogProps = await this.dialogPropsRepository.find({
+      relations: ['dialog'],
+      where: {
+        user,
+      },
+    });
+
+    const allDialogIds = allDialogProps.map((dialogProps) => dialogProps.dialog.id);
+
+    const allDialogs = await this.dialogRepository
+      .createQueryBuilder('dialog')
+      .where('dialog.id = any ( :ids )', { ids: allDialogIds })
+      .leftJoinAndSelect('dialog.users', 'users')
+      .leftJoinAndSelect('dialog.dialogProps', 'dialogProps')
+      .leftJoinAndSelect('dialogProps.user', 'user')
+      .getMany();
+
+    return allDialogs;
+  }
+
+  async create(userIdsWithRoles: CreateDialogInput[]): Promise<Dialog | Error> {
     const userIds = userIdsWithRoles.map((idWithRole) => idWithRole.userId);
     const dialogId = v4();
     const users = await this.userService
       .send<User[]>(FIND_ALL_USERS_TYPE, { ids: userIds })
       .toPromise();
     if (!users || users.length < userIds.length) {
-      throw new RpcException('Users not found');
+      return new Error('Users not found');
     }
 
     const newDialog: Dialog = {
