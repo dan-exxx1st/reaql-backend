@@ -17,4 +17,7 @@ export class Dialog extends BaseEntity {
   lastMessage?: string;
   @Column({ nullable: true })
   lastMessageDate?: Date;
+
+  @Column({ default: false })
+  group?: boolean;
 }

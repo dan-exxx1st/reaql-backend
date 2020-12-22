@@ -18,6 +18,9 @@ export class User extends BaseEntity {
   @Column()
   avatar: string;
 
+  @Column()
+  online?: string;
+
   @OneToMany(() => Session, (session) => session.user)
   sessions: Session[];
 

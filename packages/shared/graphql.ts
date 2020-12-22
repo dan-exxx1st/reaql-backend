@@ -40,7 +40,7 @@ export class User {
     email: string;
     name: string;
     surname: string;
-    avatar?: string;
+    avatar: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -59,6 +59,7 @@ export class Dialog {
     dialogProps: DialogProps[];
     lastMessage?: string;
     lastMessageDate?: string;
+    group: boolean;
 }
 
 export class DialogProps {
@@ -77,7 +78,7 @@ export class UserAndSession {
 export abstract class IQuery {
     abstract user(email: string): User | Promise<User>;
 
-    abstract findUsers(email: string): User[] | Promise<User[]>;
+    abstract searchUsers(email: string, selfEmail: string): User[] | Promise<User[]>;
 
     abstract dialogs(userId: string): Dialog[] | Promise<Dialog[]>;
 }
