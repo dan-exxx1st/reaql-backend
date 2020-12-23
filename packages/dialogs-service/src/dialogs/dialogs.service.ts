@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
 
 import { CreateDialogInput, DIALOG_USER_ROLES } from 'shared/graphql';
@@ -16,7 +16,7 @@ export class DialogsService {
     @Inject('USER_SERVICE') private readonly userService: ClientProxy,
   ) {}
 
-  async findAll(userId: string) {
+  async findAll(userId: string): Promise<Dialog[] | Error> {
     const user = await this.userService.send(FIND_USER_TYPE, { id: userId }).toPromise();
     if (!user) {
       return new Error('Users was not found');
@@ -42,6 +42,18 @@ export class DialogsService {
     return allDialogs;
   }
 
+  async find(dialogId: string): Promise<Dialog> {
+    const dialog = await this.dialogRepository
+      .createQueryBuilder('dialog')
+      .where('dialog.id = :dialogId', { dialogId })
+      .leftJoinAndSelect('dialog.users', 'users')
+      .leftJoinAndSelect('dialog.dialogProps', 'dialogProps')
+      .leftJoinAndSelect('dialogProps.user', 'user')
+      .getOne();
+
+    return dialog;
+  }
+
   async create(userIdsWithRoles: CreateDialogInput[]): Promise<Dialog | Error> {
     const userIds = userIdsWithRoles.map((idWithRole) => idWithRole.userId);
     const dialogId = v4();
@@ -58,6 +70,7 @@ export class DialogsService {
       messages: [],
       createdAt: new Date(),
       updatedAt: new Date(),
+      group: false, //! CHANGE
     };
 
     const savedDialog = await this.dialogRepository.save(newDialog);

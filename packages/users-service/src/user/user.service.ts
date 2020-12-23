@@ -65,7 +65,10 @@ export class UserService {
   async verifyUser({ email, password }: { email: string; password: string }) {
     try {
       const user = await this.find({ email });
-      return compare(password, user.password) ? true : false;
+      const verify = await compare(password, user.password);
+      console.log(verify);
+
+      return verify;
     } catch (error) {
       throw new RpcException(error.message);
     }

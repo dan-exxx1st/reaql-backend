@@ -5,7 +5,7 @@ import { PubSub } from 'graphql-subscriptions';
 
 import { CreateDialogInput } from 'shared/graphql';
 import { Dialog } from 'shared/models';
-import { CREATE_DIALOG_TYPE, FIND_DIALOGS_TYPE } from 'shared/types/dialog';
+import { CREATE_DIALOG_TYPE, FIND_ALL_DIALOGS_TYPE, FIND_DIALOG_TYPE } from 'shared/types/dialog';
 
 @Resolver()
 export class DialogResolver {
@@ -17,8 +17,18 @@ export class DialogResolver {
   @Query()
   async dialogs(@Args('userId') userId: string) {
     try {
-      const dialogs = await this.dialogService.send(FIND_DIALOGS_TYPE, { userId }).toPromise();
+      const dialogs = await this.dialogService.send(FIND_ALL_DIALOGS_TYPE, { userId }).toPromise();
       return dialogs;
+    } catch (error) {
+      return new Error(error.message);
+    }
+  }
+
+  @Query()
+  async dialog(@Args('dialogId') dialogId: string) {
+    try {
+      const dialog = await this.dialogService.send(FIND_DIALOG_TYPE, { dialogId }).toPromise();
+      return dialog;
     } catch (error) {
       return new Error(error.message);
     }
@@ -26,10 +36,14 @@ export class DialogResolver {
 
   @Mutation()
   async createDialog(@Args('input') input: CreateDialogInput[]) {
+    console.log(input);
+
     try {
       const newDialog = await this.dialogService
         .send<Dialog>(CREATE_DIALOG_TYPE, { userIdsWithRole: input })
         .toPromise();
+      console.log(newDialog);
+
       await this.pubSub.publish('dialogCreated', { dialogCreated: newDialog });
       return newDialog;
     } catch (error) {
@@ -39,6 +53,8 @@ export class DialogResolver {
 
   @Subscription('dialogCreated', {
     filter: (payload, variables) => {
+      console.log(payload);
+
       const { userId } = variables;
       const { dialogCreated } = payload;
       const { users } = dialogCreated;

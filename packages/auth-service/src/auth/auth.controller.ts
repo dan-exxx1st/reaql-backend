@@ -44,8 +44,10 @@ export class AuthController {
         .send<User>(FIND_USER_TYPE, { email })
         .toPromise();
       if (user) {
-        const verifyPassword = this.userService.send<boolean>(VERIFY_USER_TYPE, verifyPayload);
+        const verifyPassword = await this.userService.send<boolean>(VERIFY_USER_TYPE, verifyPayload).toPromise();
         if (verifyPassword) {
+          console.log(verifyPassword);
+
           if (rememberUser) {
             const accessToken = await this.authService.createAccessToken(user.id, user.email);
             const { id: sessionId, refreshToken } = await this.authService.createRefreshToken(user);

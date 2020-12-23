@@ -22,6 +22,7 @@ type Dialog {
   dialogProps: [DialogProps]!
   lastMessage: String
   lastMessageDate: String
+  group: Boolean!
 }
 
 type DialogProps {
@@ -40,7 +41,8 @@ type UserAndSession {
 type Query {
   user(email: String!): User!
   searchUsers(email: String!, selfEmail: String!): [User]!
-  dialogs(userId: String!): [Dialog]!
+  dialog(dialogId: String!): Dialog!
+  dialogs(userId: String!): [Dialog!]!
 }
 
 # Mutations and inputs for mutations
