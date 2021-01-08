@@ -66,7 +66,6 @@ export class UserService {
     try {
       const user = await this.find({ email });
       const verify = await compare(password, user.password);
-      console.log(verify);
 
       return verify;
     } catch (error) {

@@ -50,8 +50,8 @@ export class Main1608372594672 implements MigrationInterface {
     if (process.env.NODE_ENV !== 'production') {
       const users = await generateUserTestData();
       users.forEach(async (user) =>
-        queryRunner.query(`insert into "user" (id, email, "name", surname, "password", avatar)  
-  values  ('${user.id}', '${user.email}', '${user.name}', '${user.surname}', '${user.password}', '')`),
+        queryRunner.query(`insert into "user" (id, email, "name", surname, "password", "avatar")  
+  values  ('${user.id}', '${user.email}', '${user.name}', '${user.surname}', '${user.password}', '${user.avatar}')`),
       );
     }
   }

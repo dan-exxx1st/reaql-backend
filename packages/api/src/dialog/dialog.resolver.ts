@@ -36,13 +36,10 @@ export class DialogResolver {
 
   @Mutation()
   async createDialog(@Args('input') input: CreateDialogInput[]) {
-    console.log(input);
-
     try {
       const newDialog = await this.dialogService
         .send<Dialog>(CREATE_DIALOG_TYPE, { userIdsWithRole: input })
         .toPromise();
-      console.log(newDialog);
 
       await this.pubSub.publish('dialogCreated', { dialogCreated: newDialog });
       return newDialog;
@@ -53,8 +50,6 @@ export class DialogResolver {
 
   @Subscription('dialogCreated', {
     filter: (payload, variables) => {
-      console.log(payload);
-
       const { userId } = variables;
       const { dialogCreated } = payload;
       const { users } = dialogCreated;

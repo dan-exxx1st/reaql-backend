@@ -1,15 +1,23 @@
 import { Inject } from '@nestjs/common';
-import { Args, Query, Resolver } from '@nestjs/graphql';
+import { Args, Info, Query, Resolver } from '@nestjs/graphql';
 import { ClientProxy } from '@nestjs/microservices';
+
+import { GraphQLResolveInfo } from 'graphql';
+
 import { User } from 'shared/graphql';
 import { FIND_USERS_BY_EMAIL, FIND_USER_TYPE } from 'shared/types/user';
+
+import { getQueryFields } from '../helpers';
 
 @Resolver()
 export class UserResolver {
   constructor(@Inject('USER_SERVICE') private readonly userService: ClientProxy) {}
 
   @Query()
-  async user(@Args('email') email: string): Promise<User | Error> {
+  async user(@Args('email') email: string, @Info() info: GraphQLResolveInfo): Promise<User | Error> {
+    const fieldNames = getQueryFields(info);
+    console.log(fieldNames);
+
     try {
       const user = await this.userService.send(FIND_USER_TYPE, { email }).toPromise();
       return user;

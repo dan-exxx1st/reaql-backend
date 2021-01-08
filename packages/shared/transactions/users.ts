@@ -16,7 +16,7 @@ export async function generateUserTestData() {
       name: `Test ${iPlus}`,
       surname: `User ${iPlus}`,
       password: hashedPass,
-      avatar: '',
+      avatar: 'https://c3.emosurf.com/0005B100pri3/untitled.jpeg',
     };
     UsersData.push(user);
   }
@@ -29,7 +29,7 @@ export async function generateUserTestData() {
     name: 'Dan',
     surname: 'Parfenov',
     password: defaultUserHashPass,
-    avatar: '',
+    avatar: 'https://kipmu.ru/wp-content/uploads/hmlnopvdpmc-scaled.jpg',
   };
 
   UsersData.push(defaultUser);

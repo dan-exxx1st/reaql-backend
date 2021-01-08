@@ -35,6 +35,12 @@ export class CreateDialogInput {
     role: DIALOG_USER_ROLES;
 }
 
+export class CreateMessageInput {
+    dialogId: string;
+    userId: string;
+    text?: string;
+}
+
 export class User {
     id: string;
     email: string;
@@ -67,7 +73,16 @@ export class DialogProps {
     user: User;
     userRole: DIALOG_USER_ROLES;
     unreadMessages?: number;
-    lastMessageStatus?: MESSAGE_STATUSES;
+    lastMessageStatus: MESSAGE_STATUSES;
+}
+
+export class Message {
+    id: string;
+    user: User;
+    dialog: Dialog;
+    text: string;
+    messageDate: string;
+    messageStatus: MESSAGE_STATUSES;
 }
 
 export class UserAndSession {
@@ -80,7 +95,11 @@ export abstract class IQuery {
 
     abstract searchUsers(email: string, selfEmail: string): User[] | Promise<User[]>;
 
+    abstract dialog(dialogId: string): Dialog | Promise<Dialog>;
+
     abstract dialogs(userId: string): Dialog[] | Promise<Dialog[]>;
+
+    abstract messages(dialogId: string): Message[] | Promise<Message[]>;
 }
 
 export abstract class IMutation {
@@ -91,6 +110,8 @@ export abstract class IMutation {
     abstract refreshSession(refreshToken: string): Session | Promise<Session>;
 
     abstract createDialog(input: CreateDialogInput[]): Dialog | Promise<Dialog>;
+
+    abstract createMessage(input?: CreateMessageInput): Message | Promise<Message>;
 }
 
 export abstract class ISubscription {
