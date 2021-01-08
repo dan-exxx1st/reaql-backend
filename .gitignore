@@ -3,3 +3,4 @@
 ormlogs.log*
 .nyc_output
 coverage
+lerna-debug.log
