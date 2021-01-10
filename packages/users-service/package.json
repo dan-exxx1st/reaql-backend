@@ -12,7 +12,7 @@
     "debug": "cross-env NODE_PATH=../ nodemon -L ./src/main.ts --inspect",
     "start:prod": "node dist/main",
     "test": "cross-env NODE_PATH=../ jest",
-    "test:watch": "cross-env NODE_PATH=../ jest --watch",
+    "test:watch": "cross-env NODE_PATH=../ jest --watchAll",
     "test:cov": "cross-env NODE_PATH=../ jest --coverage",
     "test:debug": "cross-env NODE_PATH=../ node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "cross-env NODE_PATH=../ jest --config ./test/jest-e2e.json"
