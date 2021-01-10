@@ -16,15 +16,46 @@ type Session {
   updatedAt: String!
 }
 
+type Dialog {
+  id: ID!
+  users: [User]!
+  dialogProps: [DialogProps]!
+  lastMessage: String
+  lastMessageDate: String
+  group: Boolean!
+}
+
+type DialogProps {
+  id: ID!
+  user: User!
+  userRole: DIALOG_USER_ROLES!
+  unreadMessages: Int
+  lastMessageStatus: MESSAGE_STATUSES
+}
+
+type Message {
+  id: ID!
+  user: User!
+  dialog: Dialog!
+  text: String!
+  messageDate: String!
+  messageStatus: MESSAGE_STATUSES
+}
+
 type UserAndSession {
   user: User!
-  session: Session!
+  session: Session
 }
 
 type Query {
   user(email: String!): User!
-  users: [User!]!
+  searchUsers(email: String!, selfEmail: String!): [User]!
+  dialog(dialogId: String!): Dialog!
+  dialogs(userId: String!): [Dialog!]!
+  messages(dialogId: String!): [Message]!
 }
+
+# Mutations and inputs for mutations
 
 input SignUpInput {
   email: String!
@@ -36,10 +67,49 @@ input SignUpInput {
 input SignInInput {
   email: String!
   password: String!
+  rememberUser: Boolean!
+}
+
+input CreateDialogInput {
+  userId: String!
+  role: DIALOG_USER_ROLES!
+}
+
+input CreateMessageInput {
+  dialogId: String!
+  userId: String!
+  text: String
 }
 
 type Mutation {
   signUp(input: SignUpInput!): UserAndSession!
   signIn(input: SignInInput!): UserAndSession!
   refreshSession(refreshToken: String!): Session!
+  createDialog(input: [CreateDialogInput]!): Dialog!
+  createMessage(input: CreateMessageInput): Message!
+}
+
+#Subscriptions and inputs for subscriptions
+
+type Subscription {
+  dialogCreated(userId: String!): Dialog!
+}
+
+# Other ...
+enum DIALOG_USER_ROLES {
+  ADMIN
+  USER
+}
+
+enum MESSAGE_STATUSES {
+  SENDED
+  RECIVED
+  READED
+}
+
+#Schema type
+
+schema {
+  query: Query
+  mutation: Mutation
 }

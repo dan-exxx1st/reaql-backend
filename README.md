@@ -1,1 +1,1 @@
-#It's repository back-end part for reaql web application.
+### It's repository of back-end part for [reaql](https://github.com/dan-exxx1st/reaql-frontend) web application.

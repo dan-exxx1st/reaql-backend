@@ -1,13 +1,11 @@
 import { Entity, Column, ManyToOne } from 'typeorm';
 
-import { BaseEntity } from './base.entity';
-import { User } from './user.entity';
+import { BaseEntity, User } from '.';
 
 @Entity()
 export class Session extends BaseEntity {
-  @ManyToOne(() => User, (user) => user.id)
-  @Column()
-  user: string;
+  @ManyToOne(() => User, (user) => user.sessions)
+  user: User;
 
   @Column()
   token: string;

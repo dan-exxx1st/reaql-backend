@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { v4 } from 'uuid';
 import { hash, compare, genSaltSync } from 'bcryptjs';
 
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
-import { User } from 'shared/models/user.entity';
+import { User } from 'shared/models';
 import { formatISO } from 'date-fns';
 import { RpcException } from '@nestjs/microservices';
 
@@ -16,8 +16,16 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  async findAll(): Promise<User[]> {
-    return await this.userRepository.find();
+  async findAll(userIds: string[]): Promise<User[]> {
+    return await this.userRepository.find({ id: In(userIds) });
+  }
+
+  async findUsersByEmail(email: string, selfEmail: string): Promise<User[]> {
+    return await this.userRepository
+      .createQueryBuilder()
+      .where('email like :email', { email: `%${email}%` })
+      .andWhere('email <> :selfEmail', { selfEmail: `${selfEmail}` })
+      .getMany();
   }
 
   async find({ id, email }: { id?: string; email?: string }) {
@@ -44,7 +52,7 @@ export class UserService {
           createdAt: formatISO(Date.now()),
           updatedAt: formatISO(Date.now()),
         };
-        this.userRepository.save(newUser);
+        await this.userRepository.save(newUser);
         return newUser;
       }
 
@@ -57,7 +65,9 @@ export class UserService {
   async verifyUser({ email, password }: { email: string; password: string }) {
     try {
       const user = await this.find({ email });
-      return compare(password, user.password) ? true : false;
+      const verify = await compare(password, user.password);
+
+      return verify;
     } catch (error) {
       throw new RpcException(error.message);
     }
