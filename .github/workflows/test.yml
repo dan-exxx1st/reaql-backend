@@ -37,6 +37,9 @@ jobs:
       - name: Npm install
         run: npm i
 
+      - name: Lerna bootstrap
+        run: npm run bootstrap
+
       - name: Node test
         env:
           NODE_ENV: test
