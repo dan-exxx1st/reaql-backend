@@ -22,7 +22,7 @@ export class UserController {
     try {
       const { ids } = payload;
       const users = await this.userService.findAll(ids);
-      if (users) {
+      if (users && users.length > 0) {
         return users;
       }
 
@@ -39,6 +39,7 @@ export class UserController {
       if (user) {
         return user;
       }
+
       throw new RpcException('User not found.');
     } catch (error) {
       throw new RpcException(error.message);

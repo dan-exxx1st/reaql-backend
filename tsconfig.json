@@ -12,5 +12,5 @@
     "baseUrl": "packages",
     "incremental": true
   },
-  "include":["./packages", "./ava.config.js", "./.eslintrc.js"]
+  "include":["./packages", "./.eslintrc.js", "./babel.config.js", "jest.config.ts", "setupTests.ts"]
 }
