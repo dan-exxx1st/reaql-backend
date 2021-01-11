@@ -26,7 +26,7 @@ export class UserController {
         return users;
       }
 
-      throw new RpcException('Users not found.');
+      throw new RpcException('Users was not found.');
     } catch (error) {
       throw new RpcException(error.message);
     }
@@ -40,25 +40,29 @@ export class UserController {
         return user;
       }
 
-      throw new RpcException('User not found.');
+      throw new RpcException('User was not found.');
     } catch (error) {
       throw new RpcException(error.message);
     }
   }
 
   @MessagePattern(FIND_USERS_BY_EMAIL)
-  public async findUsersByEmail(payload: { email: string; selfEmail: string }): Promise<User[] | Error> {
-    const { email, selfEmail } = payload;
-    const users = await this.userService.findUsersByEmail(email, selfEmail);
-    if (users) return users;
+  public async findUsersByEmail(payload: { email: string; selfEmail: string }) {
+    try {
+      const { email, selfEmail } = payload;
+      const users = await this.userService.findUsersByEmail(email, selfEmail);
+      if (users && users.length > 0) return users;
 
-    throw new RpcException('Users not found.');
+      throw new RpcException('Users was not found.');
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
   }
 
   @MessagePattern(CREATE_USER_TYPE)
-  public async createUser(data: SignUpInput): Promise<User | Error> {
+  public async createUser(data: SignUpInput) {
     try {
-      return this.userService.create(data);
+      return await this.userService.create(data);
     } catch (error) {
       throw new RpcException(error.message);
     }
