@@ -15,7 +15,7 @@ on:
       - '**.yml'
 
 jobs:
-  testing:
+  linting:
     runs-on: ubuntu-latest
 
     steps:
