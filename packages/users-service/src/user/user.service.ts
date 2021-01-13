@@ -64,17 +64,13 @@ export class UserService {
   }
 
   async verifyUser({ email, password }: { email: string; password: string }) {
-    try {
-      const user = await this.find({ email });
-      if (user) {
-        const verify = await compare(password, user.password);
+    const user = await this.find({ email });
+    if (user) {
+      const verify = await compare(password, user.password);
 
-        return verify;
-      }
-
-      throw new RpcException('User was not found.');
-    } catch (error) {
-      throw new RpcException(error.message);
+      return verify;
     }
+
+    throw new RpcException('User was not found.');
   }
 }
