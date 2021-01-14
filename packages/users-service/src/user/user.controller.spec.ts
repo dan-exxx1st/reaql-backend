@@ -1,51 +1,13 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { User } from 'shared/models';
 
 import { UsersMockData } from 'shared/test/data/users';
-import { MockType } from 'shared/types/test';
+import { UserMockFactory } from 'shared/test/helpers/User';
 
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-
-//@ts-ignore
-export const repositoryMockFactory: () => MockType<Repository<any>> = jest.fn(() => ({
-  find: jest.fn((props) => {
-    const ids: string[] = props.id._value;
-    const data = UsersMockData.filter((user) => ids.indexOf(user.id) !== -1);
-    return data;
-  }),
-  findOne: jest.fn((props) => {
-    const { email, id } = props;
-
-    if (email) return UsersMockData.find((user) => user.email === email);
-    if (id) return UsersMockData.find((user) => user.id === id);
-  }),
-  createQueryBuilder: jest.fn(() => {
-    let data = UsersMockData;
-    return {
-      where(...props) {
-        if (props[1].email.indexOf('INVALID_EMAIL') !== -1) {
-          data = [];
-        }
-
-        return this;
-      },
-      andWhere() {
-        return this;
-      },
-      getMany() {
-        return data;
-      },
-    };
-  }),
-  save: jest.fn((props) => {
-    UsersMockData.push(props);
-    return props;
-  }),
-}));
 
 describe('UserController', () => {
   let userController: UserController;
@@ -56,7 +18,7 @@ describe('UserController', () => {
         UserService,
         {
           provide: getRepositoryToken(User),
-          useFactory: repositoryMockFactory,
+          useFactory: UserMockFactory,
         },
       ],
       controllers: [UserController],
@@ -79,7 +41,7 @@ describe('UserController', () => {
       const ids = ['999', '9999'];
       try {
         const result = await userController.getUsers({ ids });
-        if (result.length > 0) throw new Error('Result is not empty.');
+        expect(result).toBeFalsy();
       } catch (error) {
         expect(error.message).toEqual('Users was not found.');
       }
@@ -106,7 +68,7 @@ describe('UserController', () => {
 
       try {
         const resultById = await userController.getUser({ id: invalidId });
-        if (resultById.id !== undefined) throw new Error('Result not empty.');
+        expect(resultById).toBeFalsy();
       } catch (error) {
         expect(error.message).toEqual('User was not found.');
       }
@@ -117,7 +79,7 @@ describe('UserController', () => {
 
       try {
         const resultByEmail = await userController.getUser({ email: invalidEmail });
-        if (resultByEmail.email !== undefined) throw new Error('Result not empty.');
+        expect(resultByEmail).toBeFalsy();
       } catch (error) {
         expect(error.message).toEqual('User was not found.');
       }
@@ -126,7 +88,7 @@ describe('UserController', () => {
     it('should return the error if id or email was not be passed', async () => {
       try {
         const resultByEmail = await userController.getUser({});
-        if (resultByEmail.email !== undefined) throw new Error('Result not empty.');
+        expect(resultByEmail).toBeFalsy();
       } catch (error) {
         expect(error.message).toEqual('User was not found.');
       }
@@ -147,8 +109,7 @@ describe('UserController', () => {
       const selfUserEmail = UsersMockData[0].email;
       try {
         const result = await userController.findUsersByEmail({ email: invalidEmail, selfEmail: selfUserEmail });
-
-        if (result) throw new Error('Result is not empty.');
+        expect(result).toBeFalsy();
       } catch (error) {
         expect(error.message).toEqual('Users was not found.');
       }
@@ -180,7 +141,7 @@ describe('UserController', () => {
       };
       try {
         const newUser = await userController.createUser(newUserData);
-        if (newUser && newUser.email) throw new Error('User service not return error');
+        expect(newUser).toBeFalsy();
       } catch (error) {
         expect(error.message).toEqual('User already exists.');
       }
@@ -195,7 +156,7 @@ describe('UserController', () => {
       };
       try {
         const newUser = await userController.createUser(newUserData);
-        if (newUser) throw new Error('Result not return an error');
+        expect(newUser).toBeFalsy();
       } catch (error) {
         expect(error.message).toEqual('User passowrd must be at least 3 characters.');
       }
@@ -216,7 +177,7 @@ describe('UserController', () => {
     it('should return error if user was not found', async () => {
       try {
         const result = await userController.verifyUser({ email: 'INVALID_EMAIL', password: 'INVALID_PASS' });
-        if (result) throw new Error('Result not empty;');
+        expect(result).toBeFalsy();
       } catch (error) {
         expect(error.message).toEqual('User was not found.');
       }

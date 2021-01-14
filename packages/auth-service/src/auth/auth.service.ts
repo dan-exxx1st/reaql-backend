@@ -51,14 +51,10 @@ export class AuthService {
   }
 
   async deleteRefreshToken(token: string) {
-    try {
-      const refreshTokenForDelete = await this.sessionRepository.find({
-        token,
-      });
-      await this.sessionRepository.remove(refreshTokenForDelete);
-      return true;
-    } catch (error) {
-      throw new Error(error.message);
-    }
+    const refreshTokenForDelete = await this.sessionRepository.find({
+      token,
+    });
+    await this.sessionRepository.remove(refreshTokenForDelete);
+    return true;
   }
 }
