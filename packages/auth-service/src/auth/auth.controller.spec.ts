@@ -54,4 +54,97 @@ describe('AuthController', () => {
       }
     });
   });
+
+  describe('signIn', () => {
+    it('should return a new user with session if remember user set true', async () => {
+      const userForSignIn = {
+        email: UsersMockData[1].email,
+        name: 'NEW_USER_NAME',
+        surname: 'NEW_USER_SURNAME',
+        password: 'NEW_USER_PASSWORD',
+        rememberUser: true,
+      };
+      const result = await authController.signIn(userForSignIn);
+
+      expect(result.user.email).toEqual(userForSignIn.email);
+      expect(result.session).toBeDefined();
+    });
+
+    it('should return a new user without session if remember user set true', async () => {
+      const userForSignIn = {
+        email: UsersMockData[1].email,
+        name: 'NEW_USER_NAME',
+        surname: 'NEW_USER_SURNAME',
+        password: 'NEW_USER_PASSWORD',
+        rememberUser: false,
+      };
+      const result = await authController.signIn(userForSignIn);
+
+      expect(result.user.email).toEqual(userForSignIn.email);
+      expect(result.session).toBeFalsy();
+    });
+
+    it('should return an error if user is not exist of email is not valid.', async () => {
+      const userForSignIn = {
+        email: 'INVALID_EMAIL',
+        name: 'NEW_USER_NAME',
+        surname: 'NEW_USER_SURNAME',
+        password: 'NEW_USER_PASSWORD',
+        rememberUser: false,
+      };
+      try {
+        const result = await authController.signIn(userForSignIn);
+        expect(result).toBeFalsy();
+      } catch (error) {
+        expect(error.message).toEqual('Email is not valid.');
+      }
+    });
+
+    it('should return an error if password is not valid.', async () => {
+      const userForSignIn = {
+        email: UsersMockData[1].email,
+        name: 'NEW_USER_NAME',
+        surname: 'NEW_USER_SURNAME',
+        password: 'INVALID_PASSWORD',
+        rememberUser: false,
+      };
+      try {
+        const result = await authController.signIn(userForSignIn);
+        expect(result).toBeFalsy();
+      } catch (error) {
+        expect(error.message).toEqual('Password is not valid.');
+      }
+    });
+  });
+
+  describe('refreshTokens', () => {
+    it('should return a new refresh and access token', async () => {
+      const payload = 'refreshToken';
+      const { id, refreshToken, accessToken } = await authController.refreshTokens({ refreshToken: payload });
+      expect(id).toBeDefined();
+      expect(refreshToken).toBeDefined();
+      expect(accessToken).toBeDefined();
+    });
+
+    it('should return an error if refresh token was not found', async () => {
+      const invalidToken = 'NOT_FOUND_TOKEN';
+
+      try {
+        const newToken = await authController.refreshTokens({ refreshToken: invalidToken });
+        expect(newToken).toBeFalsy();
+      } catch (error) {
+        expect(error.message).toEqual('Refresh token was not found.');
+      }
+    });
+    it('should return an error if refresh token is not valid', async () => {
+      const invalidToken = 'INVALID_REFRESH_TOKEN';
+
+      try {
+        const newToken = await authController.refreshTokens({ refreshToken: invalidToken });
+        expect(newToken).toBeFalsy();
+      } catch (error) {
+        expect(error.message).toEqual('Refresh token is not valid.');
+      }
+    });
+  });
 });

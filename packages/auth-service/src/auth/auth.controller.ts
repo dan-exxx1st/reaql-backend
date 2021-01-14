@@ -62,10 +62,10 @@ export class AuthController {
             return { user };
           }
         } else {
-          throw new RpcException('Password is not valid');
+          throw new RpcException('Password is not valid.');
         }
       } else {
-        throw new RpcException('Email is not valid');
+        throw new RpcException('Email is not valid.');
       }
     } catch (error) {
       throw new RpcException(error.message);
@@ -77,14 +77,17 @@ export class AuthController {
     try {
       const { refreshToken } = payload;
       const oldRefreshToken = await this.authService.find(refreshToken);
+
       if (oldRefreshToken) {
         if (oldRefreshToken.expiresIn > Number(Date.now() / 1000)) {
           const userPayload = { id: oldRefreshToken.user.id };
+
           const user = await this.userService.send<User>(FIND_USER_TYPE, userPayload).toPromise();
           const { id, refreshToken: newRefreshToken, createdAt, updatedAt } = await this.authService.createRefreshToken(
             user,
           );
-          const newAccessToken = await this.authService.createAccessToken(user.id, user.email);
+
+          const newAccessToken = this.authService.createAccessToken(user.id, user.email);
 
           await this.authService.deleteRefreshToken(refreshToken);
           return {
