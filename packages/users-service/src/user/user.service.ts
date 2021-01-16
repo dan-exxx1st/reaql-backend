@@ -16,11 +16,11 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  async findAll(userIds: string[]) {
+  async findAll(userIds: string[]): Promise<User[]> {
     return await this.userRepository.find({ id: In(userIds) });
   }
 
-  async findUsersByEmail(email: string, selfEmail: string) {
+  async findUsersByEmail(email: string, selfEmail: string): Promise<User[]> {
     return await this.userRepository
       .createQueryBuilder()
       .where('email like :email', { email: `%${email}%` })
@@ -28,7 +28,7 @@ export class UserService {
       .getMany();
   }
 
-  async find({ id, email }: { id?: string; email?: string }) {
+  async find({ id, email }: { id?: string; email?: string }): Promise<User | undefined> {
     if (id) {
       return this.userRepository.findOne({ id });
     } else if (email) {
@@ -44,7 +44,7 @@ export class UserService {
       if (user.password.length < 3) {
         throw new RpcException('User passowrd must be at least 3 characters.');
       } else {
-        const id = v4();
+        const id: string = v4();
         const salt = genSaltSync(10);
         const password = await hash(user.password, salt);
         const newUser = {
@@ -63,7 +63,7 @@ export class UserService {
     throw new RpcException('User already exists.');
   }
 
-  async verifyUser({ email, password }: { email: string; password: string }) {
+  async verifyUser({ email, password }: { email: string; password: string }): Promise<boolean> {
     const user = await this.find({ email });
     if (user) {
       const verify = await compare(password, user.password);

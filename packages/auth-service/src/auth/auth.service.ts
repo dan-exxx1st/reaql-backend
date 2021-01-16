@@ -15,11 +15,11 @@ export class AuthService {
     private sessionRepository: Repository<Session>,
   ) {}
 
-  async find(token: string) {
+  async find(token: string): Promise<Session> {
     return this.sessionRepository.findOne({ relations: ['user'], where: { token } });
   }
 
-  async createRefreshToken(user: User) {
+  async createRefreshToken(user: User): Promise<Session> {
     const id = v4();
     const refreshToken = v4();
 
@@ -34,23 +34,17 @@ export class AuthService {
       updatedAt: new Date(),
     };
 
-    const { createdAt, updatedAt } = await this.sessionRepository.save(newRefreshToken);
-
-    return {
-      id,
-      refreshToken,
-      createdAt,
-      updatedAt,
-    };
+    await this.sessionRepository.save(newRefreshToken);
+    return newRefreshToken;
   }
 
-  createAccessToken(userId: string, email: string) {
+  createAccessToken(userId: string, email: string): string {
     const token = sign({ id: userId, email, exp: Math.floor(Date.now() / 1000) + 60 * 60 }, config.jwtSecret);
 
     return token;
   }
 
-  async deleteRefreshToken(token: string) {
+  async deleteRefreshToken(token: string): Promise<boolean> {
     const refreshTokenForDelete = await this.sessionRepository.find({
       token,
     });

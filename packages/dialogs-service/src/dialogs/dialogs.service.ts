@@ -35,7 +35,7 @@ export class DialogsService {
 
     const allDialogIds = allDialogProps.map((dialogProps) => dialogProps.dialog.id);
 
-    const allDialogs = await this.dialogRepository
+    const allDialogs: Dialog[] = await this.dialogRepository
       .createQueryBuilder('dialog')
       .where('dialog.id = any ( :ids )', { ids: allDialogIds })
       .leftJoinAndSelect('dialog.users', 'users')
@@ -46,7 +46,7 @@ export class DialogsService {
     return allDialogs;
   }
 
-  async find(dialogId: string) {
+  async find(dialogId: string): Promise<Dialog> {
     const dialog = await this.dialogRepository
       .createQueryBuilder('dialog')
       .where('dialog.id = :dialogId', { dialogId })
@@ -58,14 +58,14 @@ export class DialogsService {
     return dialog;
   }
 
-  async create(userIdsWithRoles: CreateDialogInput[]) {
+  async create(userIdsWithRoles: CreateDialogInput[]): Promise<Dialog> {
     const userIds = userIdsWithRoles.map((idWithRole) => idWithRole.userId);
     const dialogId = v4();
     const users = await this.userService
       .send<User[]>(FIND_ALL_USERS_TYPE, { ids: userIds })
       .toPromise();
     if (!users || users.length < userIds.length) {
-      return new Error('Users not found');
+      throw new Error('Users not found');
     }
 
     const newDialog: Dialog = {
@@ -102,7 +102,7 @@ export class DialogsService {
     };
   }
 
-  async createDialogProps(data: { user: User; dialog: Dialog; userRole: DIALOG_USER_ROLES }) {
+  async createDialogProps(data: { user: User; dialog: Dialog; userRole: DIALOG_USER_ROLES }): Promise<DialogProps> {
     const { user, dialog, userRole } = data;
     const id = v4();
     const newDialogProps: DialogProps = {

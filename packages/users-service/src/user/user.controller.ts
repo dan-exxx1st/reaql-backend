@@ -33,7 +33,7 @@ export class UserController {
   }
 
   @MessagePattern(FIND_USER_TYPE)
-  public async getUser(data: { id?: string; email?: string }) {
+  public async getUser(data: { id?: string; email?: string }): Promise<User> {
     try {
       const user = await this.userService.find(data);
       if (user) {
@@ -47,7 +47,7 @@ export class UserController {
   }
 
   @MessagePattern(FIND_USERS_BY_EMAIL)
-  public async findUsersByEmail(payload: { email: string; selfEmail: string }) {
+  public async findUsersByEmail(payload: { email: string; selfEmail: string }): Promise<User[]> {
     try {
       const { email, selfEmail } = payload;
       const users = await this.userService.findUsersByEmail(email, selfEmail);
@@ -69,7 +69,7 @@ export class UserController {
   }
 
   @MessagePattern(VERIFY_USER_TYPE)
-  public async verifyUser(data: { email: string; password: string }) {
+  public async verifyUser(data: { email: string; password: string }): Promise<boolean> {
     try {
       const verifiedUser = await this.userService.verifyUser(data);
       return verifiedUser;

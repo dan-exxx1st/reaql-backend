@@ -2,7 +2,7 @@ import { Controller, Inject } from '@nestjs/common';
 import { ClientProxy, MessagePattern, RpcException } from '@nestjs/microservices';
 
 import { User } from 'shared/models';
-import { SignInInput, SignUpInput } from 'shared/graphql';
+import { SignInInput, SignUpInput, UserAndSession } from 'shared/graphql';
 
 import { CREATE_USER_TYPE, FIND_USER_TYPE, VERIFY_USER_TYPE } from 'shared/types/user';
 import { REFRESH_SESSION_TYPE, SIGN_IN_TYPE, SIGN_UP_TYPE } from 'shared/types/auth';
@@ -20,14 +20,14 @@ export class AuthController {
     try {
       const createdUser = await this.userService.send<User>(CREATE_USER_TYPE, input).toPromise();
       const accessToken = await this.authService.createAccessToken(createdUser.id, createdUser.email);
-      const { id: sessionId, refreshToken } = await this.authService.createRefreshToken(createdUser);
+      const { id: sessionId, token } = await this.authService.createRefreshToken(createdUser);
 
       return {
         user: createdUser,
         session: {
           id: sessionId,
           accessToken,
-          refreshToken,
+          refreshToken: token,
         },
       };
     } catch (error) {
@@ -48,14 +48,14 @@ export class AuthController {
         if (verifyPassword) {
           if (rememberUser) {
             const accessToken = await this.authService.createAccessToken(user.id, user.email);
-            const { id: sessionId, refreshToken } = await this.authService.createRefreshToken(user);
+            const { id: sessionId, token } = await this.authService.createRefreshToken(user);
 
             return {
               user,
               session: {
                 id: sessionId,
                 accessToken,
-                refreshToken,
+                refreshToken: token,
               },
             };
           } else {
@@ -83,9 +83,7 @@ export class AuthController {
           const userPayload = { id: oldRefreshToken.user.id };
 
           const user = await this.userService.send<User>(FIND_USER_TYPE, userPayload).toPromise();
-          const { id, refreshToken: newRefreshToken, createdAt, updatedAt } = await this.authService.createRefreshToken(
-            user,
-          );
+          const { id, token: newRefreshToken, createdAt, updatedAt } = await this.authService.createRefreshToken(user);
 
           const newAccessToken = this.authService.createAccessToken(user.id, user.email);
 
