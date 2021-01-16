@@ -16,10 +16,10 @@ export class DialogsService {
     @Inject('USER_SERVICE') private readonly userService: ClientProxy,
   ) {}
 
-  async findAll(userId: string): Promise<Dialog[] | Error> {
+  async findAll(userId: string): Promise<Dialog[]> {
     const user = await this.userService.send(FIND_USER_TYPE, { id: userId }).toPromise();
     if (!user) {
-      return new Error('Users was not found');
+      throw new Error('User was not found.');
     }
 
     const allDialogProps = await this.dialogPropsRepository.find({
@@ -28,6 +28,10 @@ export class DialogsService {
         user,
       },
     });
+
+    if (!allDialogProps || allDialogProps.length < 1) {
+      throw new Error('Dialogs was not found.');
+    }
 
     const allDialogIds = allDialogProps.map((dialogProps) => dialogProps.dialog.id);
 
@@ -42,7 +46,7 @@ export class DialogsService {
     return allDialogs;
   }
 
-  async find(dialogId: string): Promise<Dialog> {
+  async find(dialogId: string) {
     const dialog = await this.dialogRepository
       .createQueryBuilder('dialog')
       .where('dialog.id = :dialogId', { dialogId })
@@ -54,7 +58,7 @@ export class DialogsService {
     return dialog;
   }
 
-  async create(userIdsWithRoles: CreateDialogInput[]): Promise<Dialog | Error> {
+  async create(userIdsWithRoles: CreateDialogInput[]) {
     const userIds = userIdsWithRoles.map((idWithRole) => idWithRole.userId);
     const dialogId = v4();
     const users = await this.userService
@@ -98,7 +102,7 @@ export class DialogsService {
     };
   }
 
-  async createDialogProps(data: { user: User; dialog: Dialog; userRole: DIALOG_USER_ROLES }): Promise<DialogProps> {
+  async createDialogProps(data: { user: User; dialog: Dialog; userRole: DIALOG_USER_ROLES }) {
     const { user, dialog, userRole } = data;
     const id = v4();
     const newDialogProps: DialogProps = {

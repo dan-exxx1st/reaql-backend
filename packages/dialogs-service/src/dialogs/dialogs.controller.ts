@@ -5,18 +5,17 @@ import { DialogsService } from './dialogs.service';
 
 import { CreateDialogInput } from 'shared/graphql';
 import { CREATE_DIALOG_TYPE, FIND_ALL_DIALOGS_TYPE, FIND_DIALOG_TYPE } from 'shared/types/dialog';
-import { Dialog } from 'shared/models';
 
 @Controller('dialogs')
 export class DialogsController {
   constructor(private readonly dialogService: DialogsService) {}
 
   @MessagePattern(FIND_ALL_DIALOGS_TYPE)
-  async findDialogs(payload: { userId: string }): Promise<Dialog[] | Error> {
+  async findDialogs(payload: { userId: string }) {
     try {
       const { userId } = payload;
-      if (!userId || userId.length < 4) {
-        throw new RpcException('User is too short');
+      if (!userId || userId.length < 1) {
+        throw new RpcException('User id is too short.');
       }
       const dialogs = await this.dialogService.findAll(userId);
       return dialogs;
@@ -26,12 +25,12 @@ export class DialogsController {
   }
 
   @MessagePattern(FIND_DIALOG_TYPE)
-  async findDialog(payload: { dialogId: string }): Promise<Dialog | Error> {
+  async findDialog(payload: { dialogId: string }) {
     try {
       const { dialogId } = payload;
       const dialog = await this.dialogService.find(dialogId);
       if (!dialog) {
-        throw new RpcException('Dialog not found.');
+        throw new RpcException('Dialog was not found.');
       }
 
       return dialog;
