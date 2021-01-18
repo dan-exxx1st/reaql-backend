@@ -77,6 +77,13 @@ const mocks = {
         break;
       }
 
+      case 'find-all-users': {
+        const { ids } = props[1];
+        const users = UsersMockData.filter((user) => ids.indexOf(user.id) !== -1);
+        mocks.data = users;
+        break;
+      }
+
       default: {
         throw new Error('Send method is not valid.');
       }

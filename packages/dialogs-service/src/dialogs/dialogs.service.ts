@@ -65,7 +65,7 @@ export class DialogsService {
       .send<User[]>(FIND_ALL_USERS_TYPE, { ids: userIds })
       .toPromise();
     if (!users || users.length < userIds.length) {
-      throw new Error('Users not found');
+      throw new Error('Users was not found.');
     }
 
     const newDialog: Dialog = {

@@ -32,6 +32,10 @@ export const DialogMockFactory = CreateMockFactory({
 
     return this;
   },
+  save: jest.fn((entity) => {
+    DialogsMock.push(entity);
+    return entity;
+  }),
 });
 
 export const DialogPropsMockFactory = CreateMockFactory({
@@ -42,6 +46,11 @@ export const DialogPropsMockFactory = CreateMockFactory({
     );
     return dialogProps;
   },
+  save: jest.fn((entity) => {
+    DialogPropsMock.push(entity);
+
+    return entity;
+  }),
 });
 
 export const DialogUserServiceMock = CreateMockFactory(UserMicroserviceMock);

@@ -45,7 +45,7 @@ export class DialogsController {
     try {
       const { userIdsWithRole } = payload;
       if (userIdsWithRole.length < 2) {
-        throw new RpcException('Short array with user ids');
+        throw new RpcException('Array with users ids is too short.');
       }
       const newDialogWithUsersAndProps = await this.dialogService.create(userIdsWithRole);
       return newDialogWithUsersAndProps;
