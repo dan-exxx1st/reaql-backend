@@ -4,7 +4,12 @@ import { MessagePattern, RpcException } from '@nestjs/microservices';
 import { DialogsService } from './dialogs.service';
 
 import { CreateDialogInput } from 'shared/graphql';
-import { CREATE_DIALOG_TYPE, FIND_ALL_DIALOGS_TYPE, FIND_DIALOG_TYPE } from 'shared/types/dialog';
+import {
+  CREATE_DIALOG_TYPE,
+  FIND_ALL_DIALOGS_TYPE,
+  FIND_DIALOG_TYPE,
+  UPDATE_DIALOG_LAST_MESSAGE_TYPE,
+} from 'shared/types/dialog';
 import { Dialog } from 'shared/models';
 
 @Controller('dialogs')
@@ -49,6 +54,16 @@ export class DialogsController {
       }
       const newDialogWithUsersAndProps = await this.dialogService.create(userIdsWithRole);
       return newDialogWithUsersAndProps;
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
+  }
+
+  @MessagePattern(UPDATE_DIALOG_LAST_MESSAGE_TYPE)
+  async updateLastMessage(payload: { message: string; dialogId: string }): Promise<boolean> {
+    try {
+      const { message, dialogId } = payload;
+      return await this.dialogService.updateLastMessage(message, dialogId);
     } catch (error) {
       throw new RpcException(error.message);
     }

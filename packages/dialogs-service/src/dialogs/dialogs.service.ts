@@ -119,4 +119,14 @@ export class DialogsService {
 
     return newDialogProps;
   }
+
+  async updateLastMessage(message: string, dialogId: string): Promise<boolean> {
+    const date = new Date();
+    const dialog = await this.dialogRepository.update(
+      { id: dialogId },
+      { lastMessage: message, lastMessageDate: date },
+    );
+
+    return dialog ? true : false;
+  }
 }

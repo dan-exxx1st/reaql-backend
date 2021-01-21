@@ -52,7 +52,7 @@ type Query {
   searchUsers(email: String!, selfEmail: String!): [User]!
   dialog(dialogId: String!): Dialog!
   dialogs(userId: String!): [Dialog!]!
-  messages(dialogId: String!): [Message]!
+  messages(dialogId: String!): [Message!]!
 }
 
 # Mutations and inputs for mutations
@@ -93,6 +93,8 @@ type Mutation {
 
 type Subscription {
   dialogCreated(userId: String!): Dialog!
+  dialogUpdated(dialogId: String!): Dialog!
+  messageCreated(dialogId: String!): Message!
 }
 
 # Other ...
