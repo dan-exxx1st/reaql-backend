@@ -30,6 +30,8 @@ export const DialogMockFactory = CreateMockFactory({
       return this.data;
     };
 
+    this.orderBy = () => this;
+
     return this;
   },
   save: jest.fn((entity) => {
