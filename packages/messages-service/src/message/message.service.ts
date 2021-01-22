@@ -29,6 +29,7 @@ export class MessageService {
       .createQueryBuilder('message')
       .where({ dialog })
       .leftJoinAndSelect('message.user', 'user')
+      .orderBy('message.createdAt', 'DESC')
       .getMany();
 
     const messageWithDialog = messages.map((message) => ({ ...message, dialog }));

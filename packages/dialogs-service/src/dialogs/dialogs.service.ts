@@ -41,6 +41,7 @@ export class DialogsService {
       .leftJoinAndSelect('dialog.users', 'users')
       .leftJoinAndSelect('dialog.dialogProps', 'dialogProps')
       .leftJoinAndSelect('dialogProps.user', 'user')
+      .orderBy('dialog.updatedAt', 'DESC')
       .getMany();
 
     return allDialogs;
