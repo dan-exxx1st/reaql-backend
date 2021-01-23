@@ -49,7 +49,7 @@ export class DialogResolver {
   }
 
   @Subscription('dialogCreated', {
-    filter: (payload, variables) => {
+    filter: (payload: { dialogCreated: Dialog }, variables: { userId: string }) => {
       const { userId } = variables;
       const { dialogCreated } = payload;
       const { users } = dialogCreated;

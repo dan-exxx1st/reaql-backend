@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
 
 import { Message, Dialog, User } from 'shared/models';
-import { FIND_DIALOG_TYPE } from 'shared/types/dialog';
+import { FIND_DIALOG_TYPE, UPDATE_DIALOG_LAST_MESSAGE_TYPE } from 'shared/types/dialog';
 import { FIND_USER_TYPE } from 'shared/types/user';
 import { MESSAGE_STATUSES } from 'shared/graphql';
 
@@ -29,6 +29,7 @@ export class MessageService {
       .createQueryBuilder('message')
       .where({ dialog })
       .leftJoinAndSelect('message.user', 'user')
+      .orderBy('message.createdAt', 'DESC')
       .getMany();
 
     const messageWithDialog = messages.map((message) => ({ ...message, dialog }));
@@ -58,6 +59,10 @@ export class MessageService {
     };
 
     const message = await this.messageRepository.save(newMessage);
+    await this.dialogService
+      .send<boolean>(UPDATE_DIALOG_LAST_MESSAGE_TYPE, { message: text, dialogId })
+      .toPromise();
+
     return message;
   }
 }

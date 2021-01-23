@@ -16,10 +16,10 @@ export class DialogsService {
     @Inject('USER_SERVICE') private readonly userService: ClientProxy,
   ) {}
 
-  async findAll(userId: string): Promise<Dialog[] | Error> {
+  async findAll(userId: string): Promise<Dialog[]> {
     const user = await this.userService.send(FIND_USER_TYPE, { id: userId }).toPromise();
     if (!user) {
-      return new Error('Users was not found');
+      throw new Error('User was not found.');
     }
 
     const allDialogProps = await this.dialogPropsRepository.find({
@@ -29,14 +29,19 @@ export class DialogsService {
       },
     });
 
+    if (!allDialogProps || allDialogProps.length < 1) {
+      throw new Error('Dialogs was not found.');
+    }
+
     const allDialogIds = allDialogProps.map((dialogProps) => dialogProps.dialog.id);
 
-    const allDialogs = await this.dialogRepository
+    const allDialogs: Dialog[] = await this.dialogRepository
       .createQueryBuilder('dialog')
       .where('dialog.id = any ( :ids )', { ids: allDialogIds })
       .leftJoinAndSelect('dialog.users', 'users')
       .leftJoinAndSelect('dialog.dialogProps', 'dialogProps')
       .leftJoinAndSelect('dialogProps.user', 'user')
+      .orderBy('dialog.updatedAt', 'DESC')
       .getMany();
 
     return allDialogs;
@@ -54,14 +59,14 @@ export class DialogsService {
     return dialog;
   }
 
-  async create(userIdsWithRoles: CreateDialogInput[]): Promise<Dialog | Error> {
+  async create(userIdsWithRoles: CreateDialogInput[]): Promise<Dialog> {
     const userIds = userIdsWithRoles.map((idWithRole) => idWithRole.userId);
     const dialogId = v4();
     const users = await this.userService
       .send<User[]>(FIND_ALL_USERS_TYPE, { ids: userIds })
       .toPromise();
     if (!users || users.length < userIds.length) {
-      return new Error('Users not found');
+      throw new Error('Users was not found.');
     }
 
     const newDialog: Dialog = {
@@ -114,5 +119,15 @@ export class DialogsService {
     await this.dialogPropsRepository.save(newDialogProps);
 
     return newDialogProps;
+  }
+
+  async updateLastMessage(message: string, dialogId: string): Promise<boolean> {
+    const date = new Date();
+    const dialog = await this.dialogRepository.update(
+      { id: dialogId },
+      { lastMessage: message, lastMessageDate: date },
+    );
+
+    return dialog ? true : false;
   }
 }
