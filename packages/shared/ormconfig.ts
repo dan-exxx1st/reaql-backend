@@ -4,9 +4,12 @@ import { User, Session, Dialog, DialogProps, Message } from './models';
 const config: ConnectionOptions = {
   type: 'postgres',
   url: process.env.DATABASE_URL || 'postgres://postgres:123@localhost:5432/reaql-dev',
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  ssl:
+    process.env.NODE_ENV === 'production'
+      ? {
+          rejectUnauthorized: false,
+        }
+      : false,
   entities: [User, Session, Dialog, DialogProps, Message],
   synchronize: false,
   migrationsRun: false,
