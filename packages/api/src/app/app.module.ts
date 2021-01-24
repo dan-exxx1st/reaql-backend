@@ -19,6 +19,7 @@ const typePathTest = process.env.TEST ? join(__dirname, '../schema.graphql') : '
       debug: true,
       installSubscriptionHandlers: true,
       context: ({ req, res }) => ({ req, res }),
+      introspection: true,
     }),
     UserModule,
     AuthModule,
