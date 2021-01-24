@@ -14,8 +14,8 @@
     "docker:build": "docker-compose build --force-rm",
     "docker:up": "docker-compose up",
     "docker:up:build": "docker-compose up --build",
-    "typeorm": "cross-env NODE_PATH=./packages ts-node  ./node_modules/typeorm/cli.js --config packages/shared/ormconfig.ts",
-    "typeorm:run": "npm run typeorm migration:run",
+    "typeorm": "cross-env NODE_PATH=./packages ts-node ./node_modules/typeorm/cli.js --config packages/shared/ormconfig.ts",
+    "typeorm:run": "cross-env NODE_ENV=${NODE_ENV:=dev} npm run typeorm migration:run",
     "typeorm:revert": "npm run typeorm migration:revert",
     "typeorm:docker:run": "cross-env DB_PORT=5434 npm run typeorm migration:run",
     "typeorm:docker:revert": "cross-env DB_PORT=5434 npm run typeorm migration:revert",
@@ -25,7 +25,8 @@
     "test": "cross-env NODE_PATH=./packages jest",
     "test:watch": "cross-env NODE_PATH=./packages jest --watchAll",
     "test:cov": "cross-env NODE_PATH=./packages jest --coverage",
-    "build": "npm run bootstrap && npm run graphql:generate && npm run typeorm:run"
+    "build": "npm run bootstrap",
+    "heroku-prebuild": "npm run graphql:generate && cross-env NODE_ENV=production npm run typeorm:run"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",

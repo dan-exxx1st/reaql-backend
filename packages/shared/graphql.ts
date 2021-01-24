@@ -73,7 +73,7 @@ export class DialogProps {
     user: User;
     userRole: DIALOG_USER_ROLES;
     unreadMessages?: number;
-    lastMessageStatus: MESSAGE_STATUSES;
+    lastMessageStatus?: MESSAGE_STATUSES;
 }
 
 export class Message {
@@ -82,7 +82,7 @@ export class Message {
     dialog: Dialog;
     text: string;
     messageDate: string;
-    messageStatus: MESSAGE_STATUSES;
+    messageStatus?: MESSAGE_STATUSES;
 }
 
 export class UserAndSession {
@@ -116,4 +116,8 @@ export abstract class IMutation {
 
 export abstract class ISubscription {
     abstract dialogCreated(userId: string): Dialog | Promise<Dialog>;
+
+    abstract dialogUpdated(dialogId: string): Dialog | Promise<Dialog>;
+
+    abstract messageCreated(dialogId: string): Message | Promise<Message>;
 }
