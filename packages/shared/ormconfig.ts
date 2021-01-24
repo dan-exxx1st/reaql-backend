@@ -3,11 +3,7 @@ import { User, Session, Dialog, DialogProps, Message } from './models';
 
 const config: ConnectionOptions = {
   type: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT) || 5432,
-  username: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || '123',
-  database: process.env.DB_NAME || 'reaql-dev',
+  url: process.env.DATABASE_URL || 'postgres://postgres:123@localhost:5432/reaql-dev',
   entities: [User, Session, Dialog, DialogProps, Message],
   synchronize: false,
   migrationsRun: false,
