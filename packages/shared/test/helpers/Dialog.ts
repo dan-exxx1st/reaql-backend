@@ -1,6 +1,7 @@
+import { Dialog } from 'shared/models';
 import { CreateMockFactory } from '.';
 import { DialogPropsMock, DialogsMock } from '../data/dialogs';
-import { UserMicroserviceMock } from './User';
+import { UserMicroserviceMockFactory } from './User';
 
 export const DialogMockFactory = CreateMockFactory({
   createQueryBuilder() {
@@ -55,4 +56,29 @@ export const DialogPropsMockFactory = CreateMockFactory({
   }),
 });
 
-export const DialogUserServiceMock = CreateMockFactory(UserMicroserviceMock);
+const mocks = {
+  dialogs: DialogsMock,
+  data: {},
+  toPromise: jest.fn(() => new Promise((resolve) => resolve(mocks.data))),
+  send: jest.fn((...props) => {
+    switch (props[0].type) {
+      case 'find-dialog': {
+        const dialogId = props[1].dialogId;
+        if (!dialogId) throw new Error('dialog id is not provided.');
+        const dialog = mocks.dialogs.find((dialog: Dialog) => dialog.id === dialogId);
+        mocks.data = dialog;
+        break;
+      }
+
+      default: {
+        throw new Error('Dialog type not supported.');
+      }
+    }
+
+    return mocks;
+  }),
+};
+
+export const DialogServiceMock = CreateMockFactory(mocks);
+
+export const DialogUserServiceMock = UserMicroserviceMockFactory;

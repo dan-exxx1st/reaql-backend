@@ -22,8 +22,9 @@ export class MessageService {
     const dialog = await this.dialogService
       .send<Dialog>(FIND_DIALOG_TYPE, { dialogId })
       .toPromise();
-    if (!dialog) {
-      return new Error('Dialog not found');
+
+    if (!dialog || !dialog.id) {
+      throw new Error('Dialog was not found.');
     }
     const messages = await this.messageRepository
       .createQueryBuilder('message')
