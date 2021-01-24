@@ -1,6 +1,8 @@
 import { ConnectionOptions } from 'typeorm';
 import { User, Session, Dialog, DialogProps, Message } from './models';
 
+console.log(process.env.NODE_ENV);
+
 const config: ConnectionOptions = {
   type: 'postgres',
   url: process.env.DATABASE_URL || 'postgres://postgres:123@localhost:5432/reaql-dev',
