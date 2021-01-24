@@ -1,8 +1,8 @@
 import { CreateMockFactory } from '.';
 import { refreshTokens } from '../data/auth';
-import { UserMicroserviceMock } from './User';
+import { UserMicroserviceMock, UserMicroserviceMockFactory } from './User';
 
-export const UserServiceMock = CreateMockFactory(UserMicroserviceMock);
+export const UserServiceMock = UserMicroserviceMockFactory;
 
 export const SessionMockFactory = CreateMockFactory({
   save: jest.fn((entity) => entity),

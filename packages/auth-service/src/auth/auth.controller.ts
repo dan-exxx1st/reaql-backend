@@ -2,7 +2,7 @@ import { Controller, Inject } from '@nestjs/common';
 import { ClientProxy, MessagePattern, RpcException } from '@nestjs/microservices';
 
 import { User } from 'shared/models';
-import { SignInInput, SignUpInput, UserAndSession } from 'shared/graphql';
+import { SignInInput, SignUpInput } from 'shared/graphql';
 
 import { CREATE_USER_TYPE, FIND_USER_TYPE, VERIFY_USER_TYPE } from 'shared/types/user';
 import { REFRESH_SESSION_TYPE, SIGN_IN_TYPE, SIGN_UP_TYPE } from 'shared/types/auth';

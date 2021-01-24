@@ -6,12 +6,9 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "prebuild": "rimraf dist",
-    "build": "nest build",
-    "start": "nest start",
-    "dev": "cross-env NODE_PATH=../ nodemon -L ./src/main.ts ./src/**/*.graphql",
+    "start": "cross-env NODE_PATH=./.. ts-node ./src/main.ts",
+    "dev": "cross-env NODE_PATH=../ nodemon -L ./src/main.ts",
     "debug": "cross-env NODE_PATH=../ nodemon  ./src/main.ts --inspect",
-    "start:prod": "node dist/main",
     "graphql:generate": "ts-node generate-typings",
     "graphql:generate:watch": "cross-env IS_WATCH=true ts-node generate-typings"
   },

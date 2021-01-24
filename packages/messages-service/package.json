@@ -6,12 +6,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "prebuild": "rimraf dist",
-    "build": "nest build",
-    "start": "nest start",
+    "start": "cross-env NODE_PATH=./.. ts-node ./src/main.ts",
     "dev": "NODE_PATH=../ nodemon -L ./src/main.ts",
-    "debug": "cross-env NODE_PATH=../ nodemon -L ./src/main.ts --inspect",
-    "start:prod": "node dist/main"
+    "debug": "cross-env NODE_PATH=../ nodemon -L ./src/main.ts --inspect"
   },
   "dependencies": {
     "@nestjs/common": "^7.5.1",

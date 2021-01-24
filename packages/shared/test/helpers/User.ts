@@ -94,3 +94,4 @@ const mocks = {
 };
 
 export const UserMicroserviceMock = mocks;
+export const UserMicroserviceMockFactory = CreateMockFactory(mocks);
