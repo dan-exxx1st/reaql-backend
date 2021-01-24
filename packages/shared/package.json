@@ -6,9 +6,6 @@
   "directories": {
     "test": "test"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "dan-exxx1st@gmail.com",
   "license": "MIT",
   "devDependencies": {
