@@ -27,14 +27,13 @@
     "test:cov": "cross-env NODE_PATH=./packages jest --coverage",
     "build": "npm run bootstrap && npm run graphql:generate && cross-env NODE_ENV=production npm run typeorm:run"
   },
-  "devDependencies": {
+  "dependencies": {
     "@types/bcryptjs": "^2.4.2",
     "@types/jest": "^26.0.20",
     "@types/sinon": "^9.0.9",
     "@typescript-eslint/eslint-plugin": "^4.6.1",
     "@typescript-eslint/parser": "^4.6.1",
     "bcryptjs": "^2.4.3",
-    "cross-env": "^7.0.2",
     "eslint": "^7.12.1",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
@@ -46,9 +45,8 @@
     "nyc": "^15.1.0",
     "prettier": "^2.1.2",
     "sinon": "^9.2.1",
-    "ts-jest": "^26.4.4"
-  },
-  "dependencies": {
+    "ts-jest": "^26.4.4",
+    "cross-env": "^7.0.2",
     "date-fns": "^2.16.1",
     "pg": "^8.5.0",
     "ts-node": "^9.0.0",
