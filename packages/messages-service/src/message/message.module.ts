@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MessageService } from './message.service';
 import { MessageController } from './message.controller';
-import { TypeOrmModule } from 'auth-service/node_modules/@nestjs/typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { Message } from 'shared/models';
 
 @Module({

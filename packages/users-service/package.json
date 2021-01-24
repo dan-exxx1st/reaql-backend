@@ -7,7 +7,10 @@
   "scripts": {
     "start": "cross-env NODE_PATH=./.. ts-node ./src/main.ts",
     "dev": "cross-env NODE_PATH=../ nodemon -L ./src/main.ts",
-    "debug": "cross-env NODE_PATH=../ nodemon -L ./src/main.ts --inspect"
+    "debug": "cross-env NODE_PATH=../ nodemon -L ./src/main.ts --inspect",
+    "prebuild": "rimraf dist",
+    "build": "tsc",
+    "start:prod": "cross-env NODE_PATH=./dist node dist/users-service/src/main.js"
   },
   "dependencies": {
     "@nestjs/common": "^7.5.1",

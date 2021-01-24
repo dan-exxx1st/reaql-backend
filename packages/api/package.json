@@ -10,7 +10,10 @@
     "dev": "cross-env NODE_PATH=../ nodemon -L ./src/main.ts",
     "debug": "cross-env NODE_PATH=../ nodemon  ./src/main.ts --inspect",
     "graphql:generate": "ts-node generate-typings",
-    "graphql:generate:watch": "cross-env IS_WATCH=true ts-node generate-typings"
+    "graphql:generate:watch": "cross-env IS_WATCH=true ts-node generate-typings",
+    "prebuild": "rimraf dist",
+    "build": "tsc",
+    "start:prod": "cross-env NODE_PATH=./dist node dist/api/src/main.js"
   },
   "dependencies": {
     "@apollo/federation": "^0.20.6",
