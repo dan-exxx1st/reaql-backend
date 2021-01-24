@@ -11,7 +11,6 @@ on:
       - master
     paths-ignore:
       - '**.md'
-      - '**.yml'
 
 jobs:
   testing:
