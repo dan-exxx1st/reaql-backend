@@ -27,7 +27,7 @@
     "test:watch": "cross-env NODE_PATH=./packages jest --watchAll",
     "test:cov": "cross-env NODE_PATH=./packages jest --coverage",
     "build": "npm run bootstrap",
-    "heroku-prebuild": "npm run graphql:generate && cross-env NODE_ENV=production npm run typeorm:run"
+    "heroku-prebuild": "npm run graphql:generate && typeorm:run:production"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
