@@ -25,6 +25,7 @@
     "test": "cross-env NODE_PATH=./packages jest",
     "test:watch": "cross-env NODE_PATH=./packages jest --watchAll",
     "test:cov": "cross-env NODE_PATH=./packages jest --coverage",
+    "build": "npm run bootstrap",
     "heroku-postbuild": "npm run graphql:generate && npm run typeorm:run"
   },
   "devDependencies": {
