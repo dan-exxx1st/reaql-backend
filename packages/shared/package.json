@@ -9,7 +9,7 @@
 	"author": "dan-exxx1st@gmail.com",
 	"license": "MIT",
 	"devDependencies": {
-		"@nestjs/graphql": "^7.9.5",
+		"@nestjs/graphql": "^7.9.8",
 		"@nestjs/testing": "^7.6.5",
 		"apollo-server-testing": "^2.19.2"
 	}
