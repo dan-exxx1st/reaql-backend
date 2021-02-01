@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClientProxy } from '@nestjs/microservices';
-
+import { formatDistance } from 'date-fns';
 import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
 
@@ -33,7 +33,14 @@ export class MessageService {
       .orderBy('message.createdAt', 'DESC')
       .getMany();
 
-    const messageWithDialog = messages.map((message) => ({ ...message, dialog }));
+    const messagesDates = messages.map((message) => {
+      return {
+        ...message,
+        messageDate: message.messageDate ? formatDistance(message.messageDate, new Date(), { addSuffix: true }) : null,
+      };
+    });
+
+    const messageWithDialog = messagesDates.map((message) => ({ ...message, dialog }));
 
     return messageWithDialog;
   }
@@ -60,10 +67,24 @@ export class MessageService {
     };
 
     const message = await this.messageRepository.save(newMessage);
-    await this.dialogService
-      .send<boolean>(UPDATE_DIALOG_LAST_MESSAGE_TYPE, { message: text, dialogId })
-      .toPromise();
 
-    return message;
+    if (message) {
+      await this.dialogService
+        .send<boolean>(UPDATE_DIALOG_LAST_MESSAGE_TYPE, { message: text, dialogId })
+        .toPromise();
+
+      const messageWithMessageDate = {
+        ...newMessage,
+        messageDate: newMessage.messageDate
+          ? formatDistance(newMessage.messageDate, new Date(), {
+              addSuffix: true,
+            })
+          : null,
+      };
+
+      return messageWithMessageDate;
+    } else {
+      throw new Error('Message was not created.');
+    }
   }
 }

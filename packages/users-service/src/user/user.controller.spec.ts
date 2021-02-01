@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from 'shared/models';
 
 import { UsersMockData } from 'shared/test/data/users';
+import { DialogServiceMock } from 'shared/test/helpers/Dialog';
 import { UserMockFactory } from 'shared/test/helpers/User';
 
 import { UserController } from './user.controller';
@@ -19,6 +20,10 @@ describe('UserController', () => {
         {
           provide: getRepositoryToken(User),
           useFactory: UserMockFactory,
+        },
+        {
+          provide: 'DIALOGS_SERVICES',
+          useFactory: DialogServiceMock,
         },
       ],
       controllers: [UserController],
@@ -101,7 +106,7 @@ describe('UserController', () => {
       const selfUserEmail = UsersMockData[0].email;
       const result = await userController.findUsersByEmail({ email: emailCharacters, selfEmail: selfUserEmail });
 
-      expect(result).toHaveLength(4);
+      expect(result).toHaveLength(2);
     });
 
     it('should return the error if users was not found', async () => {

@@ -68,13 +68,8 @@ describe('DialogsController', () => {
 
     it('should return the error if dialogs was not found', async () => {
       const userId = '1';
-
-      try {
-        const dialogs = await dialogsController.findDialogs({ userId });
-        expect(dialogs).toBeFalsy();
-      } catch (error) {
-        expect(error.message).toEqual('Dialogs was not found.');
-      }
+      const dialogs = await dialogsController.findDialogs({ userId });
+      expect(dialogs).toHaveLength(0);
     });
   });
 

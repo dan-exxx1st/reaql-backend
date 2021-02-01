@@ -31,7 +31,12 @@ export class MessageResolver {
       const newMessage = await this.messageService.send<Message>(CREATE_MESSAGE_TYPE, input).toPromise();
       await this.pubSub.publish('messageCreated', { messageCreated: newMessage });
       await this.pubSub.publish('dialogUpdated', {
-        dialogUpdated: { ...newMessage.dialog, lastMessage: newMessage.text, lastMessageDate: newMessage.messageDate },
+        dialogUpdated: {
+          ...newMessage.dialog,
+          lastMessage: newMessage.text,
+          lastMessageDate: newMessage.messageDate,
+          updatedAt: newMessage.updatedAt,
+        },
       });
       return newMessage;
     } catch (error) {
