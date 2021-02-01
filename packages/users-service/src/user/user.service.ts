@@ -1,17 +1,19 @@
 import { v4 } from 'uuid';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { hash, compare, genSaltSync } from 'bcryptjs';
 import { In, Repository } from 'typeorm';
 import { formatISO } from 'date-fns';
 
-import { User } from 'shared/models';
+import { Dialog, User } from 'shared/models';
 import { SignUpInput } from 'shared/graphql';
+import { FIND_ALL_DIALOGS_TYPE } from 'shared/types/dialog';
 
 @Injectable()
 export class UserService {
   constructor(
+    @Inject('DIALOGS_SERVICES') private readonly dialogService: ClientProxy,
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
@@ -21,11 +23,29 @@ export class UserService {
   }
 
   async findUsersByEmail(email: string, selfEmail: string): Promise<User[]> {
-    return await this.userRepository
-      .createQueryBuilder()
-      .where('email like :email', { email: `%${email}%` })
-      .andWhere('email <> :selfEmail', { selfEmail: `${selfEmail}` })
-      .getMany();
+    try {
+      const currentUser = await this.find({ email: selfEmail });
+
+      const dialogs = await this.dialogService
+        .send<Dialog[]>(FIND_ALL_DIALOGS_TYPE, { userId: currentUser.id })
+        .toPromise();
+
+      const users = await this.userRepository
+        .createQueryBuilder()
+        .where('email like :email', { email: `%${email}%` })
+        .andWhere('email <> :selfEmail', { selfEmail: `${selfEmail}` })
+        .getMany();
+
+      const filteredUsers = users.filter((user) => {
+        const indexUser = dialogs.find((dialog) => dialog.users.find((dialogUser) => dialogUser.id === user.id));
+
+        return indexUser ? false : true;
+      });
+
+      return filteredUsers;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   async find({ id, email }: { id?: string; email?: string }): Promise<User | undefined> {

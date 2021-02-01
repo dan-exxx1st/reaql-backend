@@ -66,6 +66,8 @@ export class Dialog {
     lastMessage?: string;
     lastMessageDate?: string;
     group: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export class DialogProps {
@@ -74,6 +76,8 @@ export class DialogProps {
     userRole: DIALOG_USER_ROLES;
     unreadMessages?: number;
     lastMessageStatus?: MESSAGE_STATUSES;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export class Message {
@@ -83,6 +87,8 @@ export class Message {
     text: string;
     messageDate: string;
     messageStatus?: MESSAGE_STATUSES;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export class UserAndSession {

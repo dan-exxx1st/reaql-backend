@@ -70,6 +70,11 @@ const mocks = {
         break;
       }
 
+      case 'find-all-dialogs': {
+        mocks.data = DialogsMock;
+        break;
+      }
+
       default: {
         throw new Error('Dialog type not supported.');
       }

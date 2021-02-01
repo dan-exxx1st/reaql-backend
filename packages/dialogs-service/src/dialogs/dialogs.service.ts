@@ -7,6 +7,7 @@ import { v4 } from 'uuid';
 import { CreateDialogInput, DIALOG_USER_ROLES } from 'shared/graphql';
 import { Dialog, DialogProps, User } from 'shared/models';
 import { FIND_ALL_USERS_TYPE, FIND_USER_TYPE } from 'shared/types/user';
+import { formatDistance } from 'date-fns';
 
 @Injectable()
 export class DialogsService {
@@ -16,7 +17,7 @@ export class DialogsService {
     @Inject('USER_SERVICE') private readonly userService: ClientProxy,
   ) {}
 
-  async findAll(userId: string): Promise<Dialog[]> {
+  async findAll(userId: string) {
     const user = await this.userService.send(FIND_USER_TYPE, { id: userId }).toPromise();
     if (!user) {
       throw new Error('User was not found.');
@@ -30,7 +31,7 @@ export class DialogsService {
     });
 
     if (!allDialogProps || allDialogProps.length < 1) {
-      throw new Error('Dialogs was not found.');
+      return [];
     }
 
     const allDialogIds = allDialogProps.map((dialogProps) => dialogProps.dialog.id);
@@ -44,7 +45,16 @@ export class DialogsService {
       .orderBy('dialog.updatedAt', 'DESC')
       .getMany();
 
-    return allDialogs;
+    const dialogsWithLastMessageDate = allDialogs.map((dialog) => ({
+      ...dialog,
+      lastMessageDate: dialog.lastMessageDate
+        ? formatDistance(dialog.lastMessageDate, new Date(), {
+            addSuffix: true,
+          })
+        : null,
+    }));
+
+    return dialogsWithLastMessageDate;
   }
 
   async find(dialogId: string): Promise<Dialog> {
