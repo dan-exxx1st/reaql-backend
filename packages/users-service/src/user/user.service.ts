@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { hash, compare, genSaltSync } from 'bcryptjs';
 import { In, Repository } from 'typeorm';
-import { formatISO } from 'date-fns';
+import { formatDistance, formatISO } from 'date-fns';
 
 import { Dialog, User } from 'shared/models';
 import { SignUpInput } from 'shared/graphql';
@@ -18,8 +18,18 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  async findAll(userIds: string[]): Promise<User[]> {
-    return await this.userRepository.find({ id: In(userIds) });
+  withFormatDistance(online: string) {
+    return online && online !== 'online' ? formatDistance(new Date(online), new Date(), { addSuffix: true }) : online;
+  }
+
+  async findAll(userIds: string[]) {
+    const users = await this.userRepository.find({ id: In(userIds) });
+    const usersWithOnline = users.map((user) => ({
+      ...user,
+      online: this.withFormatDistance(user.online),
+    }));
+
+    return usersWithOnline;
   }
 
   async findUsersByEmail(email: string, selfEmail: string): Promise<User[]> {
@@ -42,20 +52,31 @@ export class UserService {
         return indexUser ? false : true;
       });
 
-      return filteredUsers;
+      const usersWithOnline = filteredUsers.map((user) => ({
+        ...user,
+        online: this.withFormatDistance(user.online),
+      }));
+
+      return usersWithOnline;
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  async find({ id, email }: { id?: string; email?: string }): Promise<User | undefined> {
+  async find({ id, email }: { id?: string; email?: string }) {
+    let user;
     if (id) {
-      return this.userRepository.findOne({ id });
+      user = await this.userRepository.findOne({ id });
     } else if (email) {
-      return this.userRepository.findOne({ email });
+      user = await this.userRepository.findOne({ email });
     }
 
-    return undefined;
+    const newUser = {
+      ...user,
+      online: user && user.online && this.withFormatDistance(user.online),
+    };
+
+    return newUser;
   }
 
   async create(user: SignUpInput) {
@@ -98,8 +119,13 @@ export class UserService {
     const { userId, status } = payload;
     const updatedInfo = await this.userRepository.update({ id: userId }, { online: status });
     if (updatedInfo.affected) {
-      const updatedUser = await this.find({ id: userId });
-      return updatedUser;
+      const { ...userData } = await this.find({ id: userId });
+      const userOnlineStatus = {
+        ...userData,
+        online: this.withFormatDistance(status),
+      };
+
+      return userOnlineStatus;
     }
   }
 }

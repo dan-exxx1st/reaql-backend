@@ -17,6 +17,10 @@ export class DialogsService {
     @Inject('USER_SERVICE') private readonly userService: ClientProxy,
   ) {}
 
+  withFormatDistance(online: string) {
+    return online && online !== 'online' ? formatDistance(new Date(online), new Date(), { addSuffix: true }) : online;
+  }
+
   async findAll(userId: string) {
     const user = await this.userService.send(FIND_USER_TYPE, { id: userId }).toPromise();
     if (!user) {
@@ -52,12 +56,29 @@ export class DialogsService {
             addSuffix: true,
           })
         : null,
+      users: [
+        ...dialog.users.map((user) => {
+          return {
+            ...user,
+            online: user.online && this.withFormatDistance(user.online),
+          };
+        }),
+      ],
+      dialogProps: [
+        ...dialog.dialogProps.map((dialogProps) => ({
+          ...dialogProps,
+          user: {
+            ...dialogProps.user,
+            online: dialogProps.user.online && this.withFormatDistance(dialogProps.user.online),
+          },
+        })),
+      ],
     }));
 
     return dialogsWithLastMessageDate;
   }
 
-  async find(dialogId: string): Promise<Dialog> {
+  async find(dialogId: string) {
     const dialog = await this.dialogRepository
       .createQueryBuilder('dialog')
       .where('dialog.id = :dialogId', { dialogId })
@@ -73,12 +94,26 @@ export class DialogsService {
     const dialogWithOnlineStatus = {
       ...dialog,
       users: [
-        ...dialog.users.map((user) => ({
-          ...user,
-          online:
-            user.online && user.online !== 'online'
-              ? `Was online: ${formatDistance(new Date(user.online), new Date(), { addSuffix: true })}`
-              : user.online,
+        ...dialog.users.map((user) => {
+          return {
+            ...user,
+            online:
+              user.online && user.online !== 'online'
+                ? `Was online: ${this.withFormatDistance(user.online)}`
+                : user.online,
+          };
+        }),
+      ],
+      lastMessageDate: dialog.lastMessageDate
+        ? formatDistance(new Date(dialog.lastMessageDate), new Date(), { addSuffix: true })
+        : dialog.lastMessageDate,
+      dialogProps: [
+        ...dialog.dialogProps.map((dialogProps) => ({
+          ...dialogProps,
+          user: {
+            ...dialogProps.user,
+            online: dialogProps.user.online && this.withFormatDistance(dialogProps.user.online),
+          },
         })),
       ],
     };
