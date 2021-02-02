@@ -1,11 +1,11 @@
 import { Inject } from '@nestjs/common';
-import { Args, Info, Query, Resolver } from '@nestjs/graphql';
+import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ClientProxy } from '@nestjs/microservices';
 
 import { GraphQLResolveInfo } from 'graphql';
 
-import { User } from 'shared/graphql';
-import { FIND_USERS_BY_EMAIL, FIND_USER_TYPE } from 'shared/types/user';
+import { User, UpdateOnlineStatusInput } from 'shared/graphql';
+import { FIND_USERS_BY_EMAIL_TYPE, FIND_USER_TYPE, UPDATE_ONLINE_STATUS_TYPE } from 'shared/types/user';
 
 import { getQueryFields } from '../helpers';
 
@@ -31,9 +31,20 @@ export class UserResolver {
     try {
       if (email.length < 2) return [];
       const users = await this.userService
-        .send<User[]>(FIND_USERS_BY_EMAIL, { email, selfEmail })
+        .send<User[]>(FIND_USERS_BY_EMAIL_TYPE, { email, selfEmail })
         .toPromise();
       return users;
+    } catch (error) {
+      return new Error(error.message);
+    }
+  }
+
+  @Mutation()
+  async updateOnlineStatus(@Args('input') input: UpdateOnlineStatusInput) {
+    try {
+      const updatedUser = await this.userService.send<User>(UPDATE_ONLINE_STATUS_TYPE, input).toPromise();
+
+      return updatedUser;
     } catch (error) {
       return new Error(error.message);
     }

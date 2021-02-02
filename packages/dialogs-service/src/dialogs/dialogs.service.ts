@@ -66,7 +66,20 @@ export class DialogsService {
       .leftJoinAndSelect('dialogProps.user', 'user')
       .getOne();
 
-    return dialog;
+    const dialogWithOnlineStatus = {
+      ...dialog,
+      users: [
+        ...dialog.users.map((user) => ({
+          ...user,
+          online:
+            user.online && user.online !== 'online'
+              ? `Was online: ${formatDistance(new Date(user.online), new Date(), { addSuffix: true })}`
+              : user.online,
+        })),
+      ],
+    };
+
+    return dialogWithOnlineStatus;
   }
 
   async create(userIdsWithRoles: CreateDialogInput[]): Promise<Dialog> {

@@ -41,6 +41,11 @@ export class CreateMessageInput {
     text?: string;
 }
 
+export class UpdateOnlineStatusInput {
+    userId: string;
+    status: string;
+}
+
 export class User {
     id: string;
     email: string;
@@ -118,6 +123,8 @@ export abstract class IMutation {
     abstract createDialog(input: CreateDialogInput[]): Dialog | Promise<Dialog>;
 
     abstract createMessage(input?: CreateMessageInput): Message | Promise<Message>;
+
+    abstract updateOnlineStatus(input?: UpdateOnlineStatusInput): User | Promise<User>;
 }
 
 export abstract class ISubscription {

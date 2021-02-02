@@ -9,7 +9,8 @@ import {
   FIND_USER_TYPE,
   CREATE_USER_TYPE,
   VERIFY_USER_TYPE,
-  FIND_USERS_BY_EMAIL,
+  FIND_USERS_BY_EMAIL_TYPE,
+  UPDATE_ONLINE_STATUS_TYPE,
 } from 'shared/types/user';
 import { UserService } from './user.service';
 
@@ -46,7 +47,7 @@ export class UserController {
     }
   }
 
-  @MessagePattern(FIND_USERS_BY_EMAIL)
+  @MessagePattern(FIND_USERS_BY_EMAIL_TYPE)
   public async findUsersByEmail(payload: { email: string; selfEmail: string }): Promise<User[]> {
     try {
       const { email, selfEmail } = payload;
@@ -73,6 +74,16 @@ export class UserController {
     try {
       const verifiedUser = await this.userService.verifyUser(data);
       return verifiedUser;
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
+  }
+
+  @MessagePattern(UPDATE_ONLINE_STATUS_TYPE)
+  public async updateOnlineStatus(payload: { userId: string; status: string }) {
+    try {
+      const updatedUser = await this.userService.updateOnlineStatus(payload);
+      return updatedUser;
     } catch (error) {
       throw new RpcException(error.message);
     }

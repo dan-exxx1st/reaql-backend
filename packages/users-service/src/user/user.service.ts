@@ -93,4 +93,13 @@ export class UserService {
 
     throw new RpcException('User was not found.');
   }
+
+  async updateOnlineStatus(payload: { userId: string; status: string }) {
+    const { userId, status } = payload;
+    const updatedInfo = await this.userRepository.update({ id: userId }, { online: status });
+    if (updatedInfo.affected) {
+      const updatedUser = await this.find({ id: userId });
+      return updatedUser;
+    }
+  }
 }

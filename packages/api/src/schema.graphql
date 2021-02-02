@@ -6,6 +6,7 @@ type User {
   avatar: String!
   createdAt: String!
   updatedAt: String!
+  online: String
 }
 
 type Session {
@@ -87,12 +88,18 @@ input CreateMessageInput {
   text: String
 }
 
+input UpdateOnlineStatusInput {
+  userId: String!
+  status: String!
+}
+
 type Mutation {
   signUp(input: SignUpInput!): UserAndSession!
   signIn(input: SignInInput!): UserAndSession!
   refreshSession(refreshToken: String!): Session!
   createDialog(input: [CreateDialogInput]!): Dialog!
   createMessage(input: CreateMessageInput): Message!
+  updateOnlineStatus(input: UpdateOnlineStatusInput): User!
 }
 
 #Subscriptions and inputs for subscriptions

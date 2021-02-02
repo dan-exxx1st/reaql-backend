@@ -18,6 +18,7 @@ export class DialogResolver {
   async dialogs(@Args('userId') userId: string) {
     try {
       const dialogs = await this.dialogService.send(FIND_ALL_DIALOGS_TYPE, { userId }).toPromise();
+
       return dialogs;
     } catch (error) {
       return new Error(error.message);
