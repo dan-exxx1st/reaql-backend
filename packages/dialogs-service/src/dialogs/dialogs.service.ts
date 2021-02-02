@@ -66,6 +66,10 @@ export class DialogsService {
       .leftJoinAndSelect('dialogProps.user', 'user')
       .getOne();
 
+    if (!dialog) {
+      return undefined;
+    }
+
     const dialogWithOnlineStatus = {
       ...dialog,
       users: [
