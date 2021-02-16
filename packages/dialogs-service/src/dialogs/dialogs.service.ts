@@ -21,6 +21,44 @@ export class DialogsService {
     return online && online !== 'online' ? formatDistance(new Date(online), new Date(), { addSuffix: true }) : online;
   }
 
+  formatDialog(dialog: Dialog) {
+    const formatedDialog = dialog;
+
+    const withFormatDate = {
+      ...formatedDialog,
+      lastMessageDate: formatedDialog.lastMessageDate
+        ? formatDistance(formatedDialog.lastMessageDate, new Date(), {
+            addSuffix: true,
+          })
+        : null,
+      users: [
+        ...formatedDialog.users.map((user) => {
+          return {
+            ...user,
+            online:
+              user.online && user.online !== 'online'
+                ? `Was online: ${this.withFormatDistance(user.online)}`
+                : user.online,
+          };
+        }),
+      ],
+      dialogProps: [
+        ...formatedDialog.dialogProps.map(({ user, ...dialogProps }) => ({
+          ...dialogProps,
+          user: {
+            ...user,
+            online:
+              user.online && user.online !== 'online'
+                ? `Was online: ${this.withFormatDistance(user.online)}`
+                : user.online,
+          },
+        })),
+      ],
+    };
+
+    return withFormatDate;
+  }
+
   async findAll(userId: string) {
     const user = await this.userService.send(FIND_USER_TYPE, { id: userId }).toPromise();
     if (!user) {
@@ -49,31 +87,7 @@ export class DialogsService {
       .orderBy('dialog.updatedAt', 'DESC')
       .getMany();
 
-    const dialogsWithLastMessageDate = allDialogs.map((dialog) => ({
-      ...dialog,
-      lastMessageDate: dialog.lastMessageDate
-        ? formatDistance(dialog.lastMessageDate, new Date(), {
-            addSuffix: true,
-          })
-        : null,
-      users: [
-        ...dialog.users.map((user) => {
-          return {
-            ...user,
-            online: user.online && this.withFormatDistance(user.online),
-          };
-        }),
-      ],
-      dialogProps: [
-        ...dialog.dialogProps.map((dialogProps) => ({
-          ...dialogProps,
-          user: {
-            ...dialogProps.user,
-            online: dialogProps.user.online && this.withFormatDistance(dialogProps.user.online),
-          },
-        })),
-      ],
-    }));
+    const dialogsWithLastMessageDate = allDialogs.map((dialog) => this.formatDialog(dialog));
 
     return dialogsWithLastMessageDate;
   }
@@ -91,37 +105,12 @@ export class DialogsService {
       return undefined;
     }
 
-    const dialogWithOnlineStatus = {
-      ...dialog,
-      users: [
-        ...dialog.users.map((user) => {
-          return {
-            ...user,
-            online:
-              user.online && user.online !== 'online'
-                ? `Was online: ${this.withFormatDistance(user.online)}`
-                : user.online,
-          };
-        }),
-      ],
-      lastMessageDate: dialog.lastMessageDate
-        ? formatDistance(new Date(dialog.lastMessageDate), new Date(), { addSuffix: true })
-        : dialog.lastMessageDate,
-      dialogProps: [
-        ...dialog.dialogProps.map((dialogProps) => ({
-          ...dialogProps,
-          user: {
-            ...dialogProps.user,
-            online: dialogProps.user.online && this.withFormatDistance(dialogProps.user.online),
-          },
-        })),
-      ],
-    };
+    const dialogWithOnlineStatus = this.formatDialog(dialog);
 
     return dialogWithOnlineStatus;
   }
 
-  async create(userIdsWithRoles: CreateDialogInput[]): Promise<Dialog> {
+  async create(userIdsWithRoles: CreateDialogInput[]) {
     const userIds = userIdsWithRoles.map((idWithRole) => idWithRole.userId);
     const dialogId = v4();
     const users = await this.userService
@@ -158,11 +147,13 @@ export class DialogsService {
       dialogProps.push(newDialogProps);
     }
 
-    return {
+    const dialog = {
       ...newDialog,
       users,
       dialogProps,
     };
+
+    return this.formatDialog(dialog);
   }
 
   async createDialogProps(data: { user: User; dialog: Dialog; userRole: DIALOG_USER_ROLES }): Promise<DialogProps> {

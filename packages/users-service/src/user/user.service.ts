@@ -26,7 +26,7 @@ export class UserService {
     const users = await this.userRepository.find({ id: In(userIds) });
     const usersWithOnline = users.map((user) => ({
       ...user,
-      online: this.withFormatDistance(user.online),
+      online: user && user.online && this.withFormatDistance(user.online),
     }));
 
     return usersWithOnline;
@@ -54,7 +54,7 @@ export class UserService {
 
       const usersWithOnline = filteredUsers.map((user) => ({
         ...user,
-        online: this.withFormatDistance(user.online),
+        online: user && user.online && this.withFormatDistance(user.online),
       }));
 
       return usersWithOnline;
@@ -71,12 +71,16 @@ export class UserService {
       user = await this.userRepository.findOne({ email });
     }
 
-    const newUser = {
-      ...user,
-      online: user && user.online && this.withFormatDistance(user.online),
-    };
+    if (user) {
+      const newUser = {
+        ...user,
+        online: user && user.online && this.withFormatDistance(user.online),
+      };
 
-    return newUser;
+      return newUser;
+    }
+
+    return undefined;
   }
 
   async create(user: SignUpInput) {
@@ -95,6 +99,7 @@ export class UserService {
           avatar: '',
           createdAt: formatISO(Date.now()),
           updatedAt: formatISO(Date.now()),
+          online: formatISO(Date.now()),
         };
         await this.userRepository.save(newUser);
         return newUser;
@@ -122,7 +127,7 @@ export class UserService {
       const { ...userData } = await this.find({ id: userId });
       const userOnlineStatus = {
         ...userData,
-        online: this.withFormatDistance(status),
+        online: status && this.withFormatDistance(status),
       };
 
       return userOnlineStatus;
