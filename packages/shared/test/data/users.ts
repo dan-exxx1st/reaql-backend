@@ -1,5 +1,6 @@
 const createdAt = new Date(),
-  updatedAt = new Date();
+  updatedAt = new Date(),
+  online = 'online';
 
 export const UsersMockData = [
   {
@@ -10,6 +11,7 @@ export const UsersMockData = [
     avatar: '',
     createdAt,
     updatedAt,
+    online,
   },
   {
     id: '2',
@@ -19,6 +21,7 @@ export const UsersMockData = [
     avatar: '',
     createdAt,
     updatedAt,
+    online,
   },
   {
     id: '3',
@@ -28,6 +31,7 @@ export const UsersMockData = [
     avatar: '',
     createdAt,
     updatedAt,
+    online,
   },
   {
     id: '4',
@@ -37,5 +41,6 @@ export const UsersMockData = [
     avatar: '',
     createdAt,
     updatedAt,
+    online,
   },
 ];

@@ -108,6 +108,7 @@ type Subscription {
   dialogCreated(userId: String!): Dialog!
   dialogUpdated(dialogId: String!): Dialog!
   messageCreated(dialogId: String!): Message!
+  dialogOnlineUpdated(userId: String!): User!
 }
 
 # Other ...

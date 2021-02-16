@@ -29,6 +29,7 @@ export class DialogResolver {
   async dialog(@Args('dialogId') dialogId: string) {
     try {
       const dialog = await this.dialogService.send(FIND_DIALOG_TYPE, { dialogId }).toPromise();
+
       return dialog;
     } catch (error) {
       return new Error(error.message);
