@@ -2,6 +2,8 @@ import { Inject } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { ClientProxy } from '@nestjs/microservices';
 import { PubSub } from 'graphql-subscriptions';
+import { Observable, of } from 'rxjs';
+import { catchError, tap, timeout } from 'rxjs/operators';
 
 import { CreateDialogInput } from 'shared/graphql';
 import { Dialog } from 'shared/models';
@@ -15,39 +17,38 @@ export class DialogResolver {
   }
 
   @Query()
-  async dialogs(@Args('userId') userId: string) {
-    try {
-      const dialogs = await this.dialogService.send(FIND_ALL_DIALOGS_TYPE, { userId }).toPromise();
-
-      return dialogs;
-    } catch (error) {
-      return new Error(error.message);
-    }
+  dialogs(@Args('userId') userId: string): Observable<Dialog[] | string> {
+    return this.dialogService
+      .send<Dialog[]>(FIND_ALL_DIALOGS_TYPE, { userId })
+      .pipe(
+        timeout(5000),
+        catchError((err: string) => of(err)),
+      );
   }
 
   @Query()
-  async dialog(@Args('dialogId') dialogId: string) {
-    try {
-      const dialog = await this.dialogService.send(FIND_DIALOG_TYPE, { dialogId }).toPromise();
-
-      return dialog;
-    } catch (error) {
-      return new Error(error.message);
-    }
+  dialog(@Args('dialogId') dialogId: string): Observable<Dialog | string> {
+    return this.dialogService
+      .send<Dialog>(FIND_DIALOG_TYPE, { dialogId })
+      .pipe(
+        timeout(5000),
+        catchError((err: string) => of(err)),
+      );
   }
 
   @Mutation()
-  async createDialog(@Args('input') input: CreateDialogInput[]) {
-    try {
-      const newDialog = await this.dialogService
-        .send<Dialog>(CREATE_DIALOG_TYPE, { userIdsWithRole: input })
-        .toPromise();
-
-      await this.pubSub.publish('dialogCreated', { dialogCreated: newDialog });
-      return newDialog;
-    } catch (error) {
-      return new Error(error.message);
-    }
+  createDialog(@Args('input') input: CreateDialogInput[]): Observable<Dialog | string> {
+    return this.dialogService
+      .send<Dialog>(CREATE_DIALOG_TYPE, { userIdsWithRole: input })
+      .pipe(
+        timeout(5000),
+        tap((next) => {
+          if (next instanceof Dialog) {
+            this.pubSub.publish('dialogCreated', { dialogCreated: next });
+          }
+        }),
+        catchError((err: string) => of(err)),
+      );
   }
 
   @Subscription('dialogCreated', {
