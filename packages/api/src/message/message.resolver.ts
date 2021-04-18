@@ -2,6 +2,8 @@ import { Inject } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { ClientProxy } from '@nestjs/microservices';
 import { PubSub } from 'graphql-subscriptions';
+import { Observable, of } from 'rxjs';
+import { catchError, tap, timeout } from 'rxjs/operators';
 
 import { Message, CreateMessageInput } from 'shared/graphql';
 import { CREATE_MESSAGE_TYPE, FIND_DIALOG_MESSAGES_TYPE } from 'shared/types/message';
@@ -14,34 +16,34 @@ export class MessageResolver {
   }
 
   @Query()
-  async messages(@Args('dialogId') dialogId: string): Promise<Message[] | Error> {
-    try {
-      const messages = await this.messageService
-        .send<Message[]>(FIND_DIALOG_MESSAGES_TYPE, { dialogId })
-        .toPromise();
-      return messages;
-    } catch (error) {
-      return new Error(error.message);
-    }
+  messages(@Args('dialogId') dialogId: string): Observable<Message[] | string> {
+    return this.messageService
+      .send<Message[]>(FIND_DIALOG_MESSAGES_TYPE, { dialogId })
+      .pipe(
+        timeout(5000),
+        catchError((err: string) => of(err)),
+      );
   }
 
   @Mutation()
-  async createMessage(@Args('input') input: CreateMessageInput): Promise<Message | Error> {
-    try {
-      const newMessage = await this.messageService.send<Message>(CREATE_MESSAGE_TYPE, input).toPromise();
-      await this.pubSub.publish('messageCreated', { messageCreated: newMessage });
-      await this.pubSub.publish('dialogUpdated', {
-        dialogUpdated: {
-          ...newMessage.dialog,
-          lastMessage: newMessage.text,
-          lastMessageDate: newMessage.messageDate,
-          updatedAt: newMessage.updatedAt,
-        },
-      });
-      return newMessage;
-    } catch (error) {
-      return new Error(error.message);
-    }
+  createMessage(@Args('input') input: CreateMessageInput): Observable<Message | string> {
+    return this.messageService.send<Message>(CREATE_MESSAGE_TYPE, input).pipe(
+      timeout(5000),
+      tap((next) => {
+        if (next instanceof Message) {
+          this.pubSub.publish('messageCreated', { messageCreated: next });
+          this.pubSub.publish('dialogUpdated', {
+            dialogUpdated: {
+              ...next.dialog,
+              lastMessage: next.text,
+              lastMessageDate: next.messageDate,
+              updatedAt: next.updatedAt,
+            },
+          });
+        }
+      }),
+      catchError((err: string) => of(err)),
+    );
   }
 
   @Subscription('messageCreated', {

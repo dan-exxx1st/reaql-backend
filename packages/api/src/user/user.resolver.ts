@@ -4,6 +4,8 @@ import { ClientProxy } from '@nestjs/microservices';
 
 import { GraphQLResolveInfo } from 'graphql';
 import { PubSub } from 'graphql-subscriptions';
+import { Observable, of } from 'rxjs';
+import { catchError, tap, timeout } from 'rxjs/operators';
 
 import { User, UpdateOnlineStatusInput } from 'shared/graphql';
 import { FIND_USERS_BY_EMAIL_TYPE, FIND_USER_TYPE, UPDATE_ONLINE_STATUS_TYPE } from 'shared/types/user';
@@ -18,43 +20,40 @@ export class UserResolver {
   }
 
   @Query()
-  async user(@Args('email') email: string, @Info() info: GraphQLResolveInfo): Promise<User | Error> {
+  user(@Args('email') email: string, @Info() info: GraphQLResolveInfo): Observable<User | string> {
     // const fieldNames = getQueryFields(info);
     // console.log(fieldNames);
-
-    try {
-      const user = await this.userService.send(FIND_USER_TYPE, { email }).toPromise();
-
-      return user;
-    } catch (error) {
-      return new Error(error.message);
-    }
+    return this.userService
+      .send<User>(FIND_USER_TYPE, { email })
+      .pipe(
+        timeout(5000),
+        catchError((err: string) => of(err)),
+      );
   }
 
   @Query()
-  async searchUsers(@Args('email') email: string, @Args('selfEmail') selfEmail: string): Promise<User[] | Error> {
-    try {
-      if (email.length < 2) return [];
-      const users = await this.userService
-        .send<User[]>(FIND_USERS_BY_EMAIL_TYPE, { email, selfEmail })
-        .toPromise();
+  searchUsers(@Args('email') email: string, @Args('selfEmail') selfEmail: string): Observable<User[] | string> {
+    if (email.length < 2) return of([]);
 
-      return users;
-    } catch (error) {
-      return new Error(error.message);
-    }
+    return this.userService
+      .send<User[]>(FIND_USERS_BY_EMAIL_TYPE, { email, selfEmail })
+      .pipe(
+        timeout(5000),
+        catchError((err: string) => of(err)),
+      );
   }
 
   @Mutation()
-  async updateOnlineStatus(@Args('input') input: UpdateOnlineStatusInput) {
-    try {
-      const updatedUser = await this.userService.send<User>(UPDATE_ONLINE_STATUS_TYPE, input).toPromise();
-      await this.pubSub.publish('dialogOnlineUpdated', { dialogOnlineUpdated: updatedUser });
-
-      return updatedUser;
-    } catch (error) {
-      return new Error(error.message);
-    }
+  updateOnlineStatus(@Args('input') input: UpdateOnlineStatusInput) {
+    return this.userService.send<User>(UPDATE_ONLINE_STATUS_TYPE, input).pipe(
+      timeout(5000),
+      tap((next) => {
+        if (next instanceof User) {
+          this.pubSub.publish('dialogOnlineUpdated', { dialogOnlineUpdated: next });
+        }
+      }),
+      catchError((err: string) => of(err)),
+    );
   }
 
   @Subscription('dialogOnlineUpdated', {
