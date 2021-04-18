@@ -2,7 +2,7 @@ version: '3'
 services:
   packages:
     container_name: packages
-    command: npm run dev
+    command: npm run start:prod
     volumes:
       - ./:/usr/app
     build:
@@ -11,7 +11,8 @@ services:
     environment:
       - APP_PORT=8080
       - DB_HOST=postgres
-      - REDIS_HOST=redis
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
     ports:
       - '8080:8080'
     depends_on:
@@ -20,6 +21,7 @@ services:
     links:
       - postgres
       - redis
+
   redis:
     image: 'redis:latest'
     container_name: microservice-redis
@@ -37,8 +39,7 @@ services:
       - '6379'
     volumes:
       - 'redis_data:/usr/local/etc/redis/redis.conf'
-    ports:
-      - '6379:6379'
+
   postgres:
     image: postgres:13.0-alpine
     volumes:
@@ -46,10 +47,11 @@ services:
     ports:
       - '5434:5432'
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=123
-      - POSTGRES_DB=reaql-dev
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
     container_name: postgres_dev
+
 volumes:
   redis_data:
     driver: local

@@ -7,12 +7,13 @@ COPY package-lock.json ./
 
 ENV NPM_CONFIG_LOGLEVEL info
 
-RUN npm install
+RUN npm ci
 
 RUN apk update
 
 COPY . .
 
 RUN npm run bootstrap
+RUN npm run build
 
 EXPOSE 8080

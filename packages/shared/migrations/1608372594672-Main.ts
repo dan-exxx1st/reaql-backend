@@ -47,10 +47,11 @@ export class Main1608372594672 implements MigrationInterface {
       `ALTER TABLE "dialog_users_user" ADD CONSTRAINT "FK_edb53f562f4538bfab43cb36453" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'test') {
       const users = await generateUserTestData();
-      users.forEach(async (user) =>
-        queryRunner.query(`insert into "user" (id, email, "name", surname, "password", "avatar")  
+      users.forEach(
+        async (user) =>
+          await queryRunner.query(`insert into "user" (id, email, "name", surname, "password", "avatar")  
   values  ('${user.id}', '${user.email}', '${user.name}', '${user.surname}', '${user.password}', '${user.avatar}')`),
       );
     }
