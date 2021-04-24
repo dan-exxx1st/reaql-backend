@@ -48,7 +48,7 @@ export class UserResolver {
     return this.userService.send<User>(UPDATE_ONLINE_STATUS_TYPE, input).pipe(
       timeout(5000),
       tap((next) => {
-        if (next instanceof User) {
+        if (typeof next !== 'string') {
           this.pubSub.publish('dialogOnlineUpdated', { dialogOnlineUpdated: next });
         }
       }),

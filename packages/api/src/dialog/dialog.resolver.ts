@@ -43,7 +43,7 @@ export class DialogResolver {
       .pipe(
         timeout(5000),
         tap((next) => {
-          if (next instanceof Dialog) {
+          if (typeof next !== 'string') {
             this.pubSub.publish('dialogCreated', { dialogCreated: next });
           }
         }),
