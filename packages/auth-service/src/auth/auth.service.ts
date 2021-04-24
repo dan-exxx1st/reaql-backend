@@ -4,7 +4,7 @@ import { Session, User } from 'shared/models';
 import { Repository } from 'typeorm';
 
 import { v4 } from 'uuid';
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 
 import config from 'shared/config';
 
@@ -23,7 +23,7 @@ export class AuthService {
     const id = v4();
     const refreshToken = v4();
 
-    const expiresIn = Number(Math.floor(Date.now() / 1000) + 60 * 60 * 48);
+    const expiresIn = Number(Math.floor(Date.now() / 1000) + 60 * 60 * 72);
 
     const newRefreshToken: Session = {
       id,
@@ -39,9 +39,26 @@ export class AuthService {
   }
 
   createAccessToken(userId: string, email: string): string {
-    const token = sign({ id: userId, email, exp: Math.floor(Date.now() / 1000) + 60 * 60 }, config.jwtSecret);
+    const token = sign({ id: userId, email, exp: Math.floor(Date.now() / 1000) + 60 }, config.jwtSecret);
 
     return token;
+  }
+
+  validateToken(accessToken: string) {
+    try {
+      const validatedToken = verify(accessToken, config.jwtSecret);
+      let valid = false;
+      if (typeof validatedToken !== 'string') {
+        const { exp } = validatedToken as { exp: number };
+        if (exp <= Math.floor(Date.now() / 1000)) valid = false;
+        else valid = true;
+      }
+
+      return valid;
+    } catch (error) {
+      if (error.message === 'jwt expired') return false;
+      throw new Error(error.message);
+    }
   }
 
   async deleteRefreshToken(token: string): Promise<boolean> {

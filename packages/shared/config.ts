@@ -6,4 +6,5 @@ export default {
   POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORDS || '123',
   POSTGRES_DB: process.env.POSTGRES_DB || 'reaql-dev',
   IS_SSL: process.env.IS_SSL,
+  REDIS_URL: process.env.REDIS_URL || `redis://localhost:6379`,
 };
