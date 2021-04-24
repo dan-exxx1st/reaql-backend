@@ -5,7 +5,7 @@ import { User } from 'shared/models';
 import { SignInInput, SignUpInput } from 'shared/graphql';
 
 import { CREATE_USER_TYPE, FIND_USER_TYPE, VERIFY_USER_TYPE } from 'shared/types/user';
-import { REFRESH_SESSION_TYPE, SIGN_IN_TYPE, SIGN_UP_TYPE } from 'shared/types/auth';
+import { REFRESH_SESSION_TYPE, SIGN_IN_TYPE, SIGN_UP_TYPE, VALIDATE_TOKEN } from 'shared/types/auth';
 
 import { AuthService } from './auth.service';
 @Controller('auth')
@@ -69,6 +69,15 @@ export class AuthController {
       }
     } catch (error) {
       throw new RpcException(error.message);
+    }
+  }
+
+  @MessagePattern(VALIDATE_TOKEN)
+  async validateToken(payload: string) {
+    try {
+      return this.authService.validateToken(payload);
+    } catch (error) {
+      return new RpcException(error.message);
     }
   }
 

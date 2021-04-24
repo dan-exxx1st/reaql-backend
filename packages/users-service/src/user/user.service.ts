@@ -125,7 +125,7 @@ export class UserService {
     const updatedInfo = await this.userRepository.update({ id: userId }, { online: status });
     if (updatedInfo.affected) {
       const { ...userData } = await this.find({ id: userId });
-      const userOnlineStatus = {
+      const userOnlineStatus: User = {
         ...userData,
         online: status && this.withFormatDistance(status),
       };

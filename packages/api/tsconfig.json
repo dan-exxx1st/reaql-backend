@@ -10,7 +10,8 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "../",
-    "incremental": true
+    "incremental": true,
+    "noImplicitAny": true,
   },
-  "exclude": ["node_modules", "./**/*.spec.ts","dist"],
+  "exclude": ["node_modules", "./**/*.spec.ts","dist", "**/**/graphql.ts"],
 }

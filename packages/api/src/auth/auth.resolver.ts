@@ -28,9 +28,6 @@ export class AuthResolver {
 
   @Mutation()
   refreshSession(@Args('refreshToken') refreshToken: string) {
-    return this.authService.send(REFRESH_SESSION_TYPE, { refreshToken }).pipe(
-      timeout(5000),
-      catchError((err: string) => of(err)),
-    );
+    return this.authService.send(REFRESH_SESSION_TYPE, { refreshToken }).pipe(timeout(5000));
   }
 }

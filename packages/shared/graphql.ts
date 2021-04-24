@@ -54,6 +54,7 @@ export class User {
     avatar: string;
     createdAt: string;
     updatedAt: string;
+    online?: string;
 }
 
 export class Session {
@@ -133,4 +134,6 @@ export abstract class ISubscription {
     abstract dialogUpdated(dialogId: string): Dialog | Promise<Dialog>;
 
     abstract messageCreated(dialogId: string): Message | Promise<Message>;
+
+    abstract dialogOnlineUpdated(userId: string): User | Promise<User>;
 }

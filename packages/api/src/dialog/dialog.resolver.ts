@@ -1,3 +1,4 @@
+import { UseGuards } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { ClientProxy } from '@nestjs/microservices';
@@ -8,6 +9,7 @@ import { catchError, tap, timeout } from 'rxjs/operators';
 import { CreateDialogInput } from 'shared/graphql';
 import { Dialog } from 'shared/models';
 import { CREATE_DIALOG_TYPE, FIND_ALL_DIALOGS_TYPE, FIND_DIALOG_TYPE } from 'shared/types/dialog';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Resolver()
 export class DialogResolver {
@@ -17,6 +19,7 @@ export class DialogResolver {
   }
 
   @Query()
+  @UseGuards(AuthGuard)
   dialogs(@Args('userId') userId: string): Observable<Dialog[] | string> {
     return this.dialogService
       .send<Dialog[]>(FIND_ALL_DIALOGS_TYPE, { userId })
@@ -43,7 +46,7 @@ export class DialogResolver {
       .pipe(
         timeout(5000),
         tap((next) => {
-          if (next instanceof Dialog) {
+          if (typeof next !== 'string') {
             this.pubSub.publish('dialogCreated', { dialogCreated: next });
           }
         }),

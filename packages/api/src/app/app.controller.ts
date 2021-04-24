@@ -1,9 +1,10 @@
 import { Controller, Get, Res } from '@nestjs/common';
+import { Response } from 'express';
 
 @Controller()
 export class AppController {
   @Get()
-  index(@Res() res) {
+  index(@Res() res: Response) {
     res.status(404).redirect('/graphql');
   }
 
