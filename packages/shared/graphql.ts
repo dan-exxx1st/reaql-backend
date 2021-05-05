@@ -111,7 +111,7 @@ export abstract class IQuery {
 
     abstract dialogs(userId: string): Dialog[] | Promise<Dialog[]>;
 
-    abstract messages(dialogId: string): Message[] | Promise<Message[]>;
+    abstract messages(dialogId: string, first: number, from: number): Message[] | Promise<Message[]>;
 }
 
 export abstract class IMutation {

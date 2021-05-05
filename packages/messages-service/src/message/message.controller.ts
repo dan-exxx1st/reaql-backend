@@ -10,10 +10,9 @@ export class MessageController {
   constructor(private messageService: MessageService) {}
 
   @MessagePattern(FIND_DIALOG_MESSAGES_TYPE)
-  async findDialogMessages(payload: { dialogId: string }) {
-    const { dialogId } = payload;
+  async findDialogMessages(payload: { dialogId: string; first: number; from: number }) {
     try {
-      const messages = await this.messageService.findAllByDialog(dialogId);
+      const messages = await this.messageService.findAllByDialog(payload);
       return messages;
     } catch (error) {
       throw new RpcException(error.message);

@@ -18,7 +18,8 @@ export class MessageService {
     @Inject('DIALOG_SERVICE') private readonly dialogService: ClientProxy,
   ) {}
 
-  async findAllByDialog(dialogId: string) {
+  async findAllByDialog(payload: { dialogId: string; first: number; from: number }) {
+    const { dialogId, first, from } = payload;
     const dialog = await this.dialogService
       .send<Dialog>(FIND_DIALOG_TYPE, { dialogId })
       .toPromise();
@@ -26,11 +27,13 @@ export class MessageService {
     if (!dialog || !dialog.id) {
       throw new Error('Dialog was not found.');
     }
+
     const messages = await this.messageRepository
       .createQueryBuilder('message')
       .where({ dialog })
+      .skip(from)
+      .take(first)
       .leftJoinAndSelect('message.user', 'user')
-      .orderBy('message.createdAt', 'DESC')
       .getMany();
 
     const messagesDates = messages.map((message) => {

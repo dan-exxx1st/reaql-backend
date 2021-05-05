@@ -2,11 +2,12 @@ import { Inject } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { ClientProxy } from '@nestjs/microservices';
 import { PubSub } from 'graphql-subscriptions';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { catchError, tap, timeout } from 'rxjs/operators';
 
 import { Message, CreateMessageInput } from 'shared/graphql';
 import { CREATE_MESSAGE_TYPE, FIND_DIALOG_MESSAGES_TYPE } from 'shared/types/message';
+import { handleResolverError } from '../helpers';
 
 @Resolver()
 export class MessageResolver {
@@ -16,33 +17,39 @@ export class MessageResolver {
   }
 
   @Query()
-  messages(@Args('dialogId') dialogId: string): Observable<Message[] | string> {
+  messages(
+    @Args('dialogId') dialogId: string,
+    @Args('first') first: number,
+    @Args('from') from: number,
+  ): Observable<Message[] | Error> {
     return this.messageService
-      .send<Message[]>(FIND_DIALOG_MESSAGES_TYPE, { dialogId })
+      .send<Message[]>(FIND_DIALOG_MESSAGES_TYPE, { dialogId, first, from })
       .pipe(
         timeout(5000),
-        catchError((err: string) => of(err)),
+        catchError((err: Error) => handleResolverError(err)),
       );
   }
 
   @Mutation()
-  createMessage(@Args('input') input: CreateMessageInput): Observable<Message | string> {
-    return this.messageService.send<Message>(CREATE_MESSAGE_TYPE, input).pipe(
+  createMessage(@Args('input') input: CreateMessageInput): Observable<Message | Error> {
+    return this.messageService.send<Message | Error>(CREATE_MESSAGE_TYPE, input).pipe(
       timeout(5000),
       tap((next) => {
-        if (next instanceof Message) {
-          this.pubSub.publish('messageCreated', { messageCreated: next });
-          this.pubSub.publish('dialogUpdated', {
-            dialogUpdated: {
-              ...next.dialog,
-              lastMessage: next.text,
-              lastMessageDate: next.messageDate,
-              updatedAt: next.updatedAt,
-            },
-          });
+        if ('message' in next) {
+          return new Error(next.message);
         }
+
+        this.pubSub.publish('messageCreated', { messageCreated: next });
+        this.pubSub.publish('dialogUpdated', {
+          dialogUpdated: {
+            ...next.dialog,
+            lastMessage: next.text,
+            lastMessageDate: next.messageDate,
+            updatedAt: next.updatedAt,
+          },
+        });
       }),
-      catchError((err: string) => of(err)),
+      catchError((err: Error) => handleResolverError(err)),
     );
   }
 

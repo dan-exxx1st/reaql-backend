@@ -42,14 +42,14 @@ describe('MessageController', () => {
   describe('findDialogMessages', () => {
     it('should return all messages by dialog id', async () => {
       const dialogId = '1';
-      const result = await messageController.findDialogMessages({ dialogId });
+      const result = await messageController.findDialogMessages({ dialogId, first: 10, from: 0 });
       expect(result).toHaveLength(1);
     });
 
     it('should return the error this dialog was not found', async () => {
       const invalidDialogId = 'INVALID_DIALOG_ID';
       try {
-        const result = await messageController.findDialogMessages({ dialogId: invalidDialogId });
+        const result = await messageController.findDialogMessages({ dialogId: invalidDialogId, first: 10, from: 0 });
         expect(result).toBeFalsy();
       } catch (error) {
         expect(error.message).toEqual('Dialog was not found.');

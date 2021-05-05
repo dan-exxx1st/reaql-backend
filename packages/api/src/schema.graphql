@@ -59,7 +59,7 @@ type Query {
   searchUsers(email: String!, selfEmail: String!): [User]!
   dialog(dialogId: String!): Dialog!
   dialogs(userId: String!): [Dialog!]!
-  messages(dialogId: String!): [Message!]!
+  messages(dialogId: String!, first: Int!, from: Int!): [Message!]!
 }
 
 # Mutations and inputs for mutations

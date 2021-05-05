@@ -22,6 +22,8 @@ export const MessageMockFactory = CreateMockFactory({
     };
 
     this.orderBy = () => this;
+    this.skip = () => this;
+    this.take = () => this;
 
     return this;
   },
